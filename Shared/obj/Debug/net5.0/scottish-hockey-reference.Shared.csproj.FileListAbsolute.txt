@@ -1,0 +1,12 @@
+C:\Users\sean.horgan\source\repos\scottish-hockey-reference\Shared\bin\Debug\net5.0\scottish-hockey-reference.Shared.deps.json
+C:\Users\sean.horgan\source\repos\scottish-hockey-reference\Shared\bin\Debug\net5.0\scottish-hockey-reference.Shared.dll
+C:\Users\sean.horgan\source\repos\scottish-hockey-reference\Shared\bin\Debug\net5.0\ref\scottish-hockey-reference.Shared.dll
+C:\Users\sean.horgan\source\repos\scottish-hockey-reference\Shared\bin\Debug\net5.0\scottish-hockey-reference.Shared.pdb
+C:\Users\sean.horgan\source\repos\scottish-hockey-reference\Shared\obj\Debug\net5.0\scottish-hockey-reference.Shared.csprojAssemblyReference.cache
+C:\Users\sean.horgan\source\repos\scottish-hockey-reference\Shared\obj\Debug\net5.0\scottish-hockey-reference.Shared.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\sean.horgan\source\repos\scottish-hockey-reference\Shared\obj\Debug\net5.0\scottish-hockey-reference.Shared.AssemblyInfoInputs.cache
+C:\Users\sean.horgan\source\repos\scottish-hockey-reference\Shared\obj\Debug\net5.0\scottish-hockey-reference.Shared.AssemblyInfo.cs
+C:\Users\sean.horgan\source\repos\scottish-hockey-reference\Shared\obj\Debug\net5.0\scottish-hockey-reference.Shared.csproj.CoreCompileInputs.cache
+C:\Users\sean.horgan\source\repos\scottish-hockey-reference\Shared\obj\Debug\net5.0\scottish-hockey-reference.Shared.dll
+C:\Users\sean.horgan\source\repos\scottish-hockey-reference\Shared\obj\Debug\net5.0\ref\scottish-hockey-reference.Shared.dll
+C:\Users\sean.horgan\source\repos\scottish-hockey-reference\Shared\obj\Debug\net5.0\scottish-hockey-reference.Shared.pdb
