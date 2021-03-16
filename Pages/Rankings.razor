@@ -29,11 +29,15 @@ else
                     <td>@team.TeamName</td>
                     <td>@team.Rating</td>
                     @if(@team.Movement >= 50){
-                        <td>Up</td>
+                        <td>
+                            <span class="oi oi-chevron-top" style="color:green"></span>
+                        </td>
                     }else if(@team.Movement < 50){
-                        <td>Down</td>
+                        <td>
+                            <span class="oi oi-chevron-bottom" style="color:red"></span>
+                        </td>
                     }else{
-                        <td></td>
+                        <td>-</td>
                     }
                 </tr>
                 rank = rank + 1;
