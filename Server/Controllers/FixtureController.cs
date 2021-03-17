@@ -1,13 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using server.Models;
 
-namespace server.Controllers
+namespace Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -80,7 +78,7 @@ namespace server.Controllers
             _context.Fixtures.Add(fixture);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetFixture", new { id = fixture.Id }, fixture);
+            return CreatedAtAction(nameof(GetFixture), new { id = fixture.Id }, fixture);
         }
 
         // DELETE: api/Fixture/5

@@ -1,6 +1,6 @@
 using System;
 
-namespace server.Models
+namespace Server.Models
 {
     public class Fixture
     {

@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace server.Models
+namespace Server.Models
 {
     public class FixtureContext : DbContext
     {

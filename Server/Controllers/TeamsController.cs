@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using server.Models;
+using Server.Models;
 
-namespace server.Controllers
+namespace Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
