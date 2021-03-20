@@ -5,6 +5,14 @@
 
 <p>This page shows the overall ELO rankings for all teams registered with Scottish Hockey.</p>
 
+<MudButton Variant="Variant.Filled" @onclick="PostTeam">
+    Create Team
+</MudButton>
+<MudButton Variant="Variant.Filled" @onclick="RefreshTeams">
+    Refresh
+</MudButton>
+<MudDivider />
+
 @if (teams == null)
 {
     <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
@@ -53,7 +61,18 @@ else
     {
         Team[] results = await Http.GetFromJsonAsync<Team[]>("api/Teams");
         teams = results.OrderByDescending(Team => Team.Rating).ToArray();
-        // https://60509aa95346090017670130.mockapi.io/teams?sortBy=rating&order=desc
+    }
+    protected async Task RefreshTeams()
+    {
+        Team[] results = await Http.GetFromJsonAsync<Team[]>("api/Teams");
+        teams = results.OrderByDescending(Team => Team.Rating).ToArray();
+    }
+
+    private async Task PostTeam()
+    {
+        // Make test team numbers randomly generated
+        var teamToPost = new Team("Test Team", 1000, 1);
+        await Http.PostAsJsonAsync("api/Teams", teamToPost);
     }
 
     public class Team
@@ -61,6 +80,12 @@ else
         public string TeamName { get; set; }
         public int Rating { get; set; }
         public int Movement { get; set; }
-        public int Rank { get; set; }
+
+        public Team(string teamname, int rating, int movement)
+        {
+            this.TeamName = teamname;
+            this.Rating = rating;
+            this.Movement = movement;
+        }
     }
 }
