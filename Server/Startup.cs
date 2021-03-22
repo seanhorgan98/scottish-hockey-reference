@@ -24,10 +24,11 @@ namespace scottishhockeyreference.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            string mySqlConnectionStr = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<FixtureContext>(opt =>
-                                               opt.UseInMemoryDatabase("FixtureList"));
+                                               opt.UseMySql(mySqlConnectionStr));
             services.AddDbContext<TeamContext>(opt =>
-                                               opt.UseInMemoryDatabase("TeamList"));
+                                               opt.UseMySql(mySqlConnectionStr));
             services.AddControllersWithViews();
             services.AddRazorPages();
 
