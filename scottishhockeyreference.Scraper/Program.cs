@@ -6,15 +6,24 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using Newtonsoft.Json;
 
 namespace scottishhockeyreference.Scraper
 {
     class Program
     {
+        static HttpClient client;
         private static readonly string leagueURL = "https://www.scottish-hockey.org.uk/league-standings/";
         static async Task Main(string[] args)
         {
-            await PrintLeagues();
+            HttpClientHandler clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+
+            // Pass the handler to httpclient(from you are calling api)
+            client = new HttpClient(clientHandler);
+            await PrintAllInfo();
         }
 
         static async Task PrintLeagues()
@@ -23,12 +32,123 @@ namespace scottishhockeyreference.Scraper
             var context = BrowsingContext.New(config);
             var document = await context.OpenAsync(leagueURL);
             var AllLeagues = document.QuerySelectorAll("h2.text-uppercase");
-            List<string> result = new List<string>();
 
             foreach (var item in AllLeagues)
             {
                 Console.WriteLine(item.TextContent);
             }
+        }
+
+        static async Task PrintAllTeams()
+        {
+            var TeamList = new List<string>();
+            var config = Configuration.Default.WithDefaultLoader();
+            var context = BrowsingContext.New(config);
+            var document = await context.OpenAsync(leagueURL);
+            var AllTeams = document.QuerySelectorAll("th.no-border.team-details");
+
+            int i = 0;
+            foreach (var item in AllTeams)
+            {
+                if (i%3 == 0)
+                {
+                    i++;
+                    continue;
+                }
+                else if(i%3==1)
+                {
+                    TeamList.Add(item.TextContent);
+                }
+                i++;
+            }
+            var sortedList = TeamList.OrderBy(x => x).ToList();
+            foreach(var item in sortedList)
+            {
+                Console.WriteLine(item);
+            }
+        }
+
+        static async Task PrintAllInfo()
+        {
+            var config = Configuration.Default.WithDefaultLoader();
+            var context = BrowsingContext.New(config);
+            var document = await context.OpenAsync(leagueURL);
+
+            // Get all leagues
+            var LeagueList = new List<string>();
+            var AllLeagues = document.QuerySelectorAll("h2.text-uppercase");
+
+            foreach (var item in AllLeagues)
+            {
+                LeagueList.Add(item.TextContent);
+            }
+
+
+            int index = 0;
+            var loopDoc = document.QuerySelectorAll("div.tableWrap");
+
+            // Loop through all league tables
+            var leagueTeams = document.QuerySelectorAll("table.league-standings");
+            foreach(var league in leagueTeams)
+            {
+                // Loop through each row in league
+                var teamRow = league.QuerySelectorAll("tr.mobile-border");
+                foreach(var div in teamRow)
+                {
+                    string currentLeague = LeagueList[index];
+                    string currentTeam = "";
+                    string currentSponsor = "";
+                    // Take only the teamname and the sponsor
+                    var teamDetails = div.QuerySelectorAll("th.no-border.team-details");
+
+                    int i = 0;
+                    foreach (var item in teamDetails)
+                    {
+                        if (i%3 == 0)
+                        {
+                            i++;
+                            continue;
+                        }
+                        else if(i%3==1)
+                        {
+                            currentTeam = item.TextContent;
+
+                        }
+                        else if(i%3==2)
+                        {
+                            currentSponsor = item.TextContent;
+
+                        }
+                        i++;
+                    }
+                    SaveTeam(currentLeague, currentTeam, currentSponsor);
+                }
+                index++;
+            }
+        }
+
+        public static async void SaveTeam(string league, string team, string sponsor)
+        {
+            var teamToPost = new Team(team, league, sponsor);
+            Console.WriteLine(JsonConvert.SerializeObject(teamToPost));
+
+            var response = await client.PostAsJsonAsync("http://localhost:5000/api/Teams", teamToPost);
+            Console.WriteLine(response);
+
+        }
+    }
+
+    class Team
+    {
+        public string TeamName { get; set; }
+        public string League { get; set; }
+        public string Sponsor { get; set; }
+
+        public Team(string teamname, string league, string sponsor)
+        {
+            this.TeamName = teamname;
+            this.League = league;
+            this.Sponsor = sponsor;
         }
     }
 }
