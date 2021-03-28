@@ -22,6 +22,7 @@ namespace Server.Models
         public int TotalGoalsAgainst { get; set; }
         public int TotalGoalDifference { get; set; }
         public int TotalPoints { get; set; }
+        public string Sponsor { get; set; }
         public string League { get; set; }
     }
 }
