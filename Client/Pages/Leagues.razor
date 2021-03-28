@@ -6,53 +6,56 @@
 <MudDivider />
 <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
     <MudTabPanel Text="Men's">
-        @foreach (var league in MensLeagueNames)
-        {
-            <h2>@league</h2>
-            <table class="table table-striped">
-                <thead class="thead-light">
-                    <tr>
-                        <th scope="col">Position</th>
-                        <th scope="col">Team</th>
-                        <th scope="col">Played</th>
-                        <th scope="col">Won</th>
-                        <th scope="col">Drawn</th>
-                        <th scope="col">Lost</th>
-                        <th scope="col">Goals For</th>
-                        <th scope="col">Goals Against</th>
-                        <th scope="col">Goal Difference</th>
-                        <th scope="col">Points</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @{int position = 0;}
-                    @foreach (var team in Teams)
-                    {
-                        if (!teamIsVisible(league, team))
-                            continue;
-                        position += 1;
-                        <tr>
-                            <td>@position</td>
-                            <td>@team.TeamName</td>
-                            <td>@team.SeasonPlayed</td>
-                            <td>@team.SeasonWon</td>
-                            <td>@team.SeasonDrawn</td>
-                            <td>@team.SeasonLost</td>
-                            <td>@team.SeasonGoalsFor</td>
-                            <td>@team.SeasonGoalsAgainst</td>
-                            <td>@team.SeasonGoalDifference</td>
-                            <td>@team.SeasonPoints</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-            <MudDivider />
-        }
+        <MudExpansionPanels MultiExpansion="true" Elevation="0">
+            @foreach (var league in MensLeagueNames)
+            {
+                <MudExpansionPanel Text="@league">
+                    <table class="table table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th scope="col">Position</th>
+                                <th scope="col">Team</th>
+                                <th scope="col">Played</th>
+                                <th scope="col">Won</th>
+                                <th scope="col">Drawn</th>
+                                <th scope="col">Lost</th>
+                                <th scope="col">Goals For</th>
+                                <th scope="col">Goals Against</th>
+                                <th scope="col">Goal Difference</th>
+                                <th scope="col">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int position = 0;}
+                            @foreach (var team in Teams)
+                            {
+                                if (!teamIsVisible(league, team))
+                                    continue;
+                                position += 1;
+                                <tr>
+                                    <td>@position</td>
+                                    <td>@team.TeamName</td>
+                                    <td>@team.SeasonPlayed</td>
+                                    <td>@team.SeasonWon</td>
+                                    <td>@team.SeasonDrawn</td>
+                                    <td>@team.SeasonLost</td>
+                                    <td>@team.SeasonGoalsFor</td>
+                                    <td>@team.SeasonGoalsAgainst</td>
+                                    <td>@team.SeasonGoalDifference</td>
+                                    <td>@team.SeasonPoints</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </MudExpansionPanel>
+            }
+        </MudExpansionPanels>
     </MudTabPanel>
     <MudTabPanel Text="Women's">
+        <MudExpansionPanels MultiExpansion="true" Elevation="0">
         @foreach (var league in WomensLeagueNames)
         {
-            <h2>@league</h2>
+            <MudExpansionPanel Text="@league">
             <table class="table table-striped">
                 <thead class="thead-light">
                     <tr>
@@ -90,13 +93,15 @@
                     }
                 </tbody>
             </table>
-            <MudDivider />
+            </MudExpansionPanel>
         }
+        </MudExpansionPanels>
     </MudTabPanel>
     <MudTabPanel Text="Men's Indoor">
+        <MudExpansionPanels MultiExpansion="true" Elevation="0">
         @foreach (var league in MensIndoorLeagueNames)
         {
-            <h2>@league</h2>
+            <MudExpansionPanel Text="@league">
             <table class="table table-striped">
                 <thead class="thead-light">
                     <tr>
@@ -134,13 +139,15 @@
                     }
                 </tbody>
             </table>
-            <MudDivider />
+            </MudExpansionPanel>
         }
+        </MudExpansionPanels>
     </MudTabPanel>
     <MudTabPanel Text="Women's Indoor">
+        <MudExpansionPanels MultiExpansion="true" Elevation="0">
         @foreach (var league in WomensIndoorLeagueNames)
         {
-            <h2>@league</h2>
+            <MudExpansionPanel Text="@league">
             <table class="table table-striped">
                 <thead class="thead-light">
                     <tr>
@@ -178,8 +185,9 @@
                     }
                 </tbody>
             </table>
-            <MudDivider />
+            </MudExpansionPanel>
         }
+        </MudExpansionPanels>
     </MudTabPanel>
 </MudTabs>
 
