@@ -227,7 +227,7 @@
                     MensIndoorLeagueNames.Add(item.League);
                 continue;
             }
-            else if(item.League.Contains("Women", StringComparison.OrdinalIgnoreCase))
+            else if(item.League.Contains("Women"))
             {
                 if (!WomensLeagueNames.Contains(item.League))
                     WomensLeagueNames.Add(item.League);
@@ -240,6 +240,10 @@
                 continue;
             }
         }
+        MensLeagueNames.Sort();
+        MensIndoorLeagueNames.Sort();
+        WomensLeagueNames.Sort();
+        WomensIndoorLeagueNames.Sort();
     }
 
 
