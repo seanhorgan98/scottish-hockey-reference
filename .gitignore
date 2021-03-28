@@ -263,3 +263,4 @@ __pycache__/
 *.pyc
 Server/site/
 Server/dotnet-core-bundle.zip
+*.zip
