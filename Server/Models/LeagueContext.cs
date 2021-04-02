@@ -9,6 +9,6 @@ namespace Server.Models
         {
         }
 
-        public DbSet<League> Leagues { get; set; }
+        public DbSet<League> leagues { get; set; }
     }
 }

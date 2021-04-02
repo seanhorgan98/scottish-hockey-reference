@@ -22,14 +22,14 @@ namespace Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<League>>> GetLeagues()
         {
-            return await _context.Leagues.ToListAsync();
+            return await _context.leagues.ToListAsync();
         }
 
         // GET: api/Leagues/5
         [HttpGet("{id}")]
         public async Task<ActionResult<League>> GetLeague(long id)
         {
-            var league = await _context.Leagues.FindAsync(id);
+            var league = await _context.leagues.FindAsync(id);
 
             if (league == null)
             {
@@ -75,7 +75,7 @@ namespace Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Team>> PostLeague(League league)
         {
-            _context.Leagues.Add(league);
+            _context.leagues.Add(league);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetLeague), new { id = league.Id }, league);
@@ -85,13 +85,13 @@ namespace Server.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteLeague(long id)
         {
-            var league = await _context.Leagues.FindAsync(id);
+            var league = await _context.leagues.FindAsync(id);
             if (league == null)
             {
                 return NotFound();
             }
 
-            _context.Leagues.Remove(league);
+            _context.leagues.Remove(league);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -99,7 +99,7 @@ namespace Server.Controllers
 
         private bool LeagueExists(long id)
         {
-            return _context.Leagues.Any(e => e.Id == id);
+            return _context.leagues.Any(e => e.Id == id);
         }
     }
 }
