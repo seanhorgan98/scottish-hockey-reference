@@ -29,10 +29,27 @@ namespace scottishhockeyreference.Scraper
             var context = BrowsingContext.New(config);
             var document = await context.OpenAsync(leagueURL);
             var AllLeagues = document.QuerySelectorAll("h2.text-uppercase");
+            var category = 1;
 
             foreach (var item in AllLeagues)
             {
-                await SaveLeague(item.TextContent);
+                if (item.TextContent.Contains("Men"))
+                {
+                    category = 1;
+                }
+                if (item.TextContent.Contains("Women"))
+                {
+                    category = 2;
+                }
+                if (item.TextContent.Contains("Men") && item.TextContent.Contains("Indoor"))
+                {
+                    category = 3;
+                }
+                if (item.TextContent.Contains("Women") && item.TextContent.Contains("Indoor"))
+                {
+                    category = 4;
+                }
+                await SaveLeague(item.TextContent, category);
             }
         }
 
@@ -118,28 +135,28 @@ namespace scottishhockeyreference.Scraper
                         }
                         i++;
                     }
-                    SaveTeam(currentLeague, currentTeam, currentSponsor);
+                    await SaveTeam(currentLeague, currentTeam, currentSponsor);
                 }
                 index++;
             }
         }
 
-        public static async void SaveTeam(string league, string team, string sponsor)
+        public static async Task SaveTeam(string league, string team, string sponsor)
         {
             var teamToPost = new Team(team, league, sponsor);
-            Console.WriteLine(JsonConvert.SerializeObject(teamToPost));
+            Console.WriteLine(teamToPost);
 
             var response = await client.PostAsJsonAsync("api/Teams", teamToPost);
-            Console.WriteLine(response);
+            // Console.WriteLine(response);
 
         }
 
 
-        public static async Task SaveLeague(string name)
+        public static async Task SaveLeague(string name, int category)
         {
-            var leagueToPost = new League(name, 1);
+            var leagueToPost = new League(name, category);
 
-            var response = await client.PostAsJsonAsync("http://localhost:5000/api/Leagues", leagueToPost);
+            var response = await client.PostAsJsonAsync("http://localhost:33988/api/Leagues", leagueToPost);
             Console.WriteLine(response);
         }
     }
