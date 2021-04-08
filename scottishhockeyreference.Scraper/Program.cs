@@ -20,7 +20,7 @@ namespace scottishhockeyreference.Scraper
 
             // Pass the handler to httpclient(from you are calling api)
             client = new HttpClient(clientHandler);
-            
+
 
             await ScrapeNewTeams();
         }
@@ -35,7 +35,6 @@ namespace scottishhockeyreference.Scraper
             foreach (var item in AllLeagues)
             {
                 await SaveLeague(item.TextContent, GetHockeyCategoryByName(item.TextContent));
-                Console.WriteLine("Here");
             }
         }
 
@@ -73,12 +72,15 @@ namespace scottishhockeyreference.Scraper
             var config = Configuration.Default.WithDefaultLoader();
             var context = BrowsingContext.New(config);
             var document = await context.OpenAsync(leagueURL);
-            var leagueResponse = await client.GetAsync("http://localhost:33988/api/Leagues");
+
+            // Get Leagues from Database
+            // var leagueResponse = await client.GetAsync("http://localhost:33988/api/Leagues");
+            var leagueResponse = await client.GetAsync("http://localhost:5000/api/Leagues");
             leagueResponse.EnsureSuccessStatusCode();
             var leagueResponseBody = await leagueResponse.Content.ReadAsStringAsync();
             var leagueList = JsonConvert.DeserializeObject<List<League>>(leagueResponseBody);
 
-            // Get all leagues
+            // Scrape all leagues
             var LeagueList = new List<string>();
             var AllLeagues = document.QuerySelectorAll("h2.text-uppercase");
 
@@ -151,7 +153,7 @@ namespace scottishhockeyreference.Scraper
 
         private static int GetHockeyCategoryByName(string teamname)
         {
-            if (teamname.Contains("Women") && teamname.Contains("Indoor"))
+            if ((teamname.Contains("Women") || teamname.Contains("Ladies")) && teamname.Contains("Indoor"))
             {
                 return 4;
             }
@@ -159,7 +161,7 @@ namespace scottishhockeyreference.Scraper
             {
                 return 3;
             }
-            if (teamname.Contains("Women"))
+            if (teamname.Contains("Women") || teamname.Contains("Ladies"))
             {
                 return 2;
             }
@@ -169,25 +171,27 @@ namespace scottishhockeyreference.Scraper
         public static async Task SaveTeam(int league, string team, string sponsor, int category, int rank)
         {
             var teamToPost = new Team(team, league, sponsor, category, rank);
-            Console.WriteLine(JsonConvert.SerializeObject(teamToPost));
-
-            await client.PostAsJsonAsync("http://localhost:33988/api/Teams", teamToPost);
+            System.Console.WriteLine(JsonConvert.SerializeObject(teamToPost));
+            // await client.PostAsJsonAsync("http://localhost:33988/api/Teams", teamToPost);
+            var response = await client.PostAsJsonAsync("http://localhost:5000/api/Teams", teamToPost);
+            System.Console.WriteLine(response);
 
         }
 
 
         public static async Task SaveLeague(string name, int category)
         {
-            var leagueToPost = new League(name, category);
+            var leagueToPost = new League(0, name, category);
 
-            var response = await client.PostAsJsonAsync("http://localhost:33988/api/Leagues", leagueToPost);
+            // var response = await client.PostAsJsonAsync("http://localhost:33988/api/Leagues", leagueToPost);
+            var response = await client.PostAsJsonAsync("http://localhost:5000/api/Leagues", leagueToPost);
             Console.WriteLine(response);
         }
     }
 
     class Team
     {
-        public string TeamName { get; set; }
+        public string Teamname { get; set; }
         public int League_ID { get; set; }
         public string Sponsor { get; set; }
         public int Hockey_Category_ID { get; }
@@ -195,7 +199,7 @@ namespace scottishhockeyreference.Scraper
 
         public Team(string teamname, int league, string sponsor, int hockey_category_id, int league_rank)
         {
-            this.TeamName = teamname;
+            this.Teamname = teamname;
             this.League_ID = league;
             this.Sponsor = sponsor;
             this.Hockey_Category_ID = hockey_category_id;
@@ -209,8 +213,9 @@ namespace scottishhockeyreference.Scraper
         public string Name { get; set; }
         public int Hockey_Category_ID { get; set; }
 
-        public League(string name, int hockey_category_id)
+        public League(int id, string name, int hockey_category_id)
         {
+            this.Id = id;
             this.Name = name;
             this.Hockey_Category_ID = hockey_category_id;
         }

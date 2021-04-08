@@ -4,7 +4,7 @@ namespace Server.Models
     {
         public long Id { get; set; }
         public string Teamname { get; set; }
-        public string League_ID { get; set; }
+        public int League_ID { get; set; }
         public string Sponsor { get; set; }
         public int Movement { get; set; }
         public int Rating { get; set; }
@@ -24,5 +24,9 @@ namespace Server.Models
         public int TotalPlayed { get; set; }
         public int TotalPoints { get; set; }
         public int TotalWon { get; set; }
+        public int Hockey_Category_ID { get; set; }
+        public int League_Rank { get; set; }
+
+
     }
 }
