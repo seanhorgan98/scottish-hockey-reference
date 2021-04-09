@@ -34,7 +34,7 @@ namespace scottishhockeyreference.Scraper
 
             foreach (var item in AllLeagues)
             {
-                await SaveLeague(item.TextContent, GetHockeyCategoryByName(item.TextContent));
+                await SaveLeague(item.TextContent, GetLeagueHockeyCategoryByName(item.TextContent));
             }
         }
 
@@ -129,35 +129,35 @@ namespace scottishhockeyreference.Scraper
                         i++;
                     }
                     // Get Category
-                    var category = GetHockeyCategoryByName(currentTeam);
-                    var currentLeague_ID = GetLeagueIDByName(leagueList, currentLeague);
+                    var teamToPost = new Team(currentTeam, 0, currentSponsor, 0, rank);
+                    GetLeagueIDAndCategoryByName(leagueList, currentLeague, teamToPost);
 
-                    await SaveTeam(currentLeague_ID, currentTeam, currentSponsor, category, rank);
+                    await SaveTeam(teamToPost);
                     rank++;
                 }
                 index++;
             }
         }
 
-        private static int GetLeagueIDByName(List<League> leagueList, string currentLeague)
+        private static void GetLeagueIDAndCategoryByName(List<League> leagueList, string currentLeague, Team team)
         {
-            foreach(var i in leagueList)
+            foreach(var league in leagueList)
             {
-                if(i.Name.Equals(currentLeague))
+                if(league.Name.Equals(currentLeague))
                 {
-                    return i.Id;
+                    team.League_ID = league.Id;
+                    team.Hockey_Category_ID = league.Hockey_Category_ID;
                 }
             }
-            return 0;
         }
 
-        private static int GetHockeyCategoryByName(string teamname)
+        private static int GetLeagueHockeyCategoryByName(string teamname)
         {
             if ((teamname.Contains("Women") || teamname.Contains("Ladies")) && teamname.Contains("Indoor"))
             {
                 return 4;
             }
-            if (teamname.Contains("Men") && teamname.Contains("Indoor"))
+            if (teamname.Contains("Indoor"))
             {
                 return 3;
             }
@@ -168,9 +168,8 @@ namespace scottishhockeyreference.Scraper
             return 1;
         }
 
-        public static async Task SaveTeam(int league, string team, string sponsor, int category, int rank)
+        public static async Task SaveTeam(Team teamToPost)
         {
-            var teamToPost = new Team(team, league, sponsor, category, rank);
             System.Console.WriteLine(JsonConvert.SerializeObject(teamToPost));
             // await client.PostAsJsonAsync("http://localhost:33988/api/Teams", teamToPost);
             var response = await client.PostAsJsonAsync("http://localhost:5000/api/Teams", teamToPost);
@@ -194,13 +193,13 @@ namespace scottishhockeyreference.Scraper
         public string Teamname { get; set; }
         public int League_ID { get; set; }
         public string Sponsor { get; set; }
-        public int Hockey_Category_ID { get; }
-        public int League_Rank { get; }
+        public int Hockey_Category_ID { get; set; }
+        public int League_Rank { get; set; }
 
-        public Team(string teamname, int league, string sponsor, int hockey_category_id, int league_rank)
+        public Team(string teamname, int league_id, string sponsor, int hockey_category_id, int league_rank)
         {
             this.Teamname = teamname;
-            this.League_ID = league;
+            this.League_ID = league_id;
             this.Sponsor = sponsor;
             this.Hockey_Category_ID = hockey_category_id;
             this.League_Rank = league_rank;
