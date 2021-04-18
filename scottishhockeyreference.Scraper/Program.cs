@@ -11,46 +11,50 @@ namespace scottishhockeyreference.Scraper
 {
     class Program
     {
-        static HttpClient client;
+        //static HttpClient client;
         private static readonly string leagueURL = "https://www.scottish-hockey.org.uk/league-standings/";
+        private static readonly string connectionString = "server=aa1su4hgu44u0mv.cxkd3gywhaht.eu-west-1.rds.amazonaws.com; port=3306; database=shr_prod; user=proddb; password=H4ppyF4c3; Persist Security Info=False; Connect Timeout=300";
         static async Task Main()
         {
-            HttpClientHandler clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+            //var clientHandler = new HttpClientHandler
+            //{
+            //    ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; }
+            //};
 
-            // Pass the handler to httpclient(from you are calling api)
-            client = new HttpClient(clientHandler);
+            //// Pass the handler to httpclient(from you are calling api)
+            //client = new HttpClient(clientHandler);
 
-            // databaseTest();
+            // DatabaseTest();
             // await ScrapeLeagues();
             // await ScrapeNewTeams();
             await ScrapePoints();
         }
 
-        private static void databaseTest()
-        {
-            var connectionString = "server=localhost; port=3306; database=scottishhockeyreference; user=root; password=root; Persist Security Info=False; Connect Timeout=300";
-            MySqlConnection conn = new MySqlConnection(connectionString);
-            conn.Open();
-            List<Team> teamList = new List<Team>();
-            var sqlSelect = "SELECT * FROM teams order by id desc;";
-            MySqlCommand cmd = new MySqlCommand(sqlSelect, conn);
-            using (MySqlDataReader rdr = cmd.ExecuteReader()) {
-                while (rdr.Read()) {
-                    /* iterate once per row */
-                    var team = new Team();
-                    team.ID = rdr.GetInt32(0);
-                    team.Teamname = (rdr.IsDBNull(1)) ? "" : rdr.GetString(1);
-                    team.League_ID = rdr.GetInt32(2);
-                    team.Hockey_Category_ID = rdr.GetInt32(22);
-                    // System.Console.WriteLine("Name: " + team.Teamname + ", League ID: " + team.League_ID + ", Cat: " + team.Hockey_Category_ID);
-                    teamList.Add(team);
-                }
-            }
-            System.Console.WriteLine(teamList.Single(x => x.ID == 823).Teamname);
+        //private static void DatabaseTest()
+        //{
+        //    var conn = new MySqlConnection(connectionString);
+        //    conn.Open();
+        //    var teamList = new List<Team>();
+        //    var sqlSelect = "SELECT * FROM teams order by id desc;";
+        //    var cmd = new MySqlCommand(sqlSelect, conn);
+        //    using (MySqlDataReader rdr = cmd.ExecuteReader()) {
+        //        while (rdr.Read()) {
+        //            /* iterate once per row */
+        //            var team = new Team
+        //            {
+        //                ID = rdr.GetInt32(0),
+        //                Teamname = (rdr.IsDBNull(1)) ? "" : rdr.GetString(1),
+        //                League_ID = rdr.GetInt32(2),
+        //                Hockey_Category_ID = rdr.GetInt32(22)
+        //            };
+        //            // System.Console.WriteLine("Name: " + team.Teamname + ", League ID: " + team.League_ID + ", Cat: " + team.Hockey_Category_ID);
+        //            teamList.Add(team);
+        //        }
+        //    }
+        //    System.Console.WriteLine(teamList.Single(x => x.ID == 823).Teamname);
 
 
-        }
+        //}
 
         static async Task ScrapeLeagues()
         {
@@ -59,15 +63,30 @@ namespace scottishhockeyreference.Scraper
             var document = await context.OpenAsync(leagueURL);
             var AllLeagues = document.QuerySelectorAll("h2.text-uppercase");
 
+            System.Console.WriteLine("THERE");
             foreach (var item in AllLeagues)
             {
+                // Console.WriteLine("HERE");
                 if (item.TextContent.Contains("Conference") || item.TextContent.Contains("Super"))
                 {
                     System.Console.WriteLine("Skipped non-standard league: " + item.TextContent);
                     continue;
                 }
-                await SaveLeague(item.TextContent, GetLeagueHockeyCategoryByName(item.TextContent));
+                SaveLeagueSQL(item.TextContent, GetLeagueHockeyCategoryByName(item.TextContent));
             }
+        }
+
+        private static void SaveLeagueSQL(string name, int category)
+        {
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            MySqlCommand cmd = conn.CreateCommand();
+            cmd.CommandText = "INSERT INTO Leagues (Name, Hockey_Category_ID) VALUES (@NAME, @CATEGORY)";
+            cmd.Parameters.AddWithValue("@NAME", name);
+            cmd.Parameters.AddWithValue("@CATEGORY", category);
+            cmd.ExecuteNonQuery();
+            conn.Close();
+
         }
 
         static async Task ScrapePoints()
@@ -77,10 +96,51 @@ namespace scottishhockeyreference.Scraper
             var document = await context.OpenAsync(leagueURL);
 
             // Get list of all teams
-            var teamResponse = await client.GetAsync("http://localhost:5000/api/Teams");
-            teamResponse.EnsureSuccessStatusCode();
-            var teamResponseBody = await teamResponse.Content.ReadAsStringAsync();
-            var teamList = JsonConvert.DeserializeObject<List<Team>>(teamResponseBody);
+            var teamList = new List<Team>();
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            var sqlSelect = @"SELECT ID,
+    League_ID,
+    Hockey_Category_ID,
+    Sponsor,
+    League_Rank,
+    SeasonPlayed,
+    SeasonWon,
+    SeasonDrawn,
+    SeasonLost,
+    SeasonGoalsFor,
+    SeasonGoalsAgainst,
+    SeasonGoalDifference,
+    SeasonPoints,
+    Teamname FROM Teams; ";
+            var cmd = new MySqlCommand(sqlSelect, conn);
+            using (MySqlDataReader rdr = cmd.ExecuteReader())
+            {
+                while (rdr.Read())
+                {
+                    /* iterate once per row */
+                    var team = new Team
+                    {
+                        Teamname = (rdr.IsDBNull(13)) ? "" : rdr.GetString(13)
+                    };
+
+                    team.ID = rdr.GetInt32(0);
+                    team.League_ID = rdr.GetInt32(1);
+                    team.Hockey_Category_ID = rdr.GetInt32(2);
+                    team.Sponsor = (rdr.IsDBNull(3)) ? "" : rdr.GetString(3);
+                    team.League_Rank = rdr.GetInt32(4);
+                    team.SeasonPlayed = rdr.GetInt32(5);
+                    team.SeasonWon = rdr.GetInt32(6);
+                    team.SeasonDrawn = rdr.GetInt32(7);
+                    team.SeasonLost = rdr.GetInt32(8);
+                    team.SeasonGoalsFor = rdr.GetInt32(9);
+                    team.SeasonGoalsAgainst = rdr.GetInt32(10);
+                    team.SeasonGoalDifference = rdr.GetInt32(11);
+                    team.SeasonPoints = rdr.GetInt32(12);
+                    teamList.Add(team);
+                    System.Console.WriteLine(team.Teamname);
+                }
+            }
 
             int played = 0;
             int won = 0;
@@ -90,22 +150,24 @@ namespace scottishhockeyreference.Scraper
             int gagainst = 0;
             int gd = 0;
             int points = 0;
+            int rank = 0;
 
             // For each league table
             var leagueTeams = document.QuerySelectorAll("table.league-standings");
-            foreach(var league in leagueTeams)
+            foreach (var league in leagueTeams)
             {
                 // For each row in league
                 var teamRow = league.QuerySelectorAll("tr.mobile-border");
-                foreach(var div in teamRow)
+                foreach (var div in teamRow)
                 {
+                    Console.WriteLine("THERE");
                     string currentTeam = "";
                     // Take only the teamname and the sponsor
                     var teamDetails = div.QuerySelectorAll("th.no-border.team-details");
                     int i = 0;
                     foreach (var item in teamDetails)
                     {
-                        if(i==1)
+                        if (i == 1)
                         {
                             currentTeam = item.TextContent;
 
@@ -118,8 +180,7 @@ namespace scottishhockeyreference.Scraper
                     {
                         if (j == 0)
                         {
-                            j++;
-                            continue;
+                            rank = Int32.Parse(item.TextContent);
                         }
                         else if (j == 1)
                         {
@@ -164,15 +225,17 @@ namespace scottishhockeyreference.Scraper
                         j++;
                     }
                     // Update team with new points
-                    var teamToUpdate = new Team();
-                    teamToUpdate.Teamname = currentTeam;
+                    var teamToUpdate = new Team
+                    {
+                        Teamname = currentTeam
+                    };
                     if (teamList.Any(x => x.Teamname == teamToUpdate.Teamname))
                     {
                         teamToUpdate.ID = teamList.FirstOrDefault(x => x.Teamname == teamToUpdate.Teamname).ID;
                         teamToUpdate.League_ID = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).League_ID;
                         teamToUpdate.Hockey_Category_ID = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).Hockey_Category_ID;
                         teamToUpdate.Sponsor = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).Sponsor;
-                        teamToUpdate.League_Rank = teamList.FirstOrDefault(x => x.ID == teamToUpdate.ID).League_Rank;
+                        teamToUpdate.League_Rank = rank;
                         teamToUpdate.SeasonPlayed = played;
                         teamToUpdate.SeasonWon = won;
                         teamToUpdate.SeasonDrawn = drawn;
@@ -182,42 +245,70 @@ namespace scottishhockeyreference.Scraper
                         teamToUpdate.SeasonGoalDifference = gd;
                         teamToUpdate.SeasonPoints = points;
                         System.Console.WriteLine(JsonConvert.SerializeObject(teamToUpdate));
-                        // await client.PostAsJsonAsync("http://localhost:33988/api/Teams", teamToPost);
-                        var response = await client.PutAsJsonAsync($"http://localhost:5000/api/Teams/{teamToUpdate.ID}", teamToUpdate);
-                        System.Console.WriteLine(response);
+                        SavePointsSQL(teamToUpdate);
                     }
                 }
             }
         }
 
-        static async Task ScrapeTeamNames()
+        private static void SavePointsSQL(Team teamToUpdate)
         {
-            var TeamList = new List<string>();
-            var config = Configuration.Default.WithDefaultLoader();
-            var context = BrowsingContext.New(config);
-            var document = await context.OpenAsync(leagueURL);
-            var AllTeams = document.QuerySelectorAll("th.no-border.team-details");
-
-            int i = 0;
-            foreach (var item in AllTeams)
-            {
-                if (i%3 == 0)
-                {
-                    i++;
-                    continue;
-                }
-                else if(i%3==1)
-                {
-                    TeamList.Add(item.TextContent);
-                }
-                i++;
-            }
-            var sortedList = TeamList.OrderBy(x => x).ToList();
-            foreach(var item in sortedList)
-            {
-                Console.WriteLine(item);
-            }
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            MySqlCommand cmd = conn.CreateCommand();
+            cmd.CommandText = @"UPDATE Teams
+SET League_Rank = @LEAGUE_RANK,
+    SeasonPlayed = @PLAYED,
+    SeasonWon = @WON,
+    SeasonDrawn = @DRAWN,
+    SeasonLost = @LOST,
+    SeasonGoalsFor = @GFOR,
+    SeasonGoalsAgainst = @GAGAINST,
+    SeasonGoalDifference = @GDIFFERENCE,
+    SeasonPoints = @POINTS
+WHERE ID = @ID;";
+            cmd.Parameters.AddWithValue("@LEAGUE_RANK", teamToUpdate.League_Rank);
+            cmd.Parameters.AddWithValue("@PLAYED", teamToUpdate.SeasonPlayed);
+            cmd.Parameters.AddWithValue("@WON", teamToUpdate.SeasonWon);
+            cmd.Parameters.AddWithValue("@DRAWN", teamToUpdate.SeasonDrawn);
+            cmd.Parameters.AddWithValue("@LOST", teamToUpdate.SeasonLost);
+            cmd.Parameters.AddWithValue("@GFOR", teamToUpdate.SeasonGoalsFor);
+            cmd.Parameters.AddWithValue("@GAGAINST", teamToUpdate.SeasonGoalsAgainst);
+            cmd.Parameters.AddWithValue("@GDIFFERENCE", teamToUpdate.SeasonGoalDifference);
+            cmd.Parameters.AddWithValue("@POINTS", teamToUpdate.SeasonPoints);
+            cmd.Parameters.AddWithValue("@ID", teamToUpdate.ID);
+            cmd.ExecuteNonQuery();
+            conn.Close();
         }
+
+        //static async Task ScrapeTeamNames()
+        //{
+        //    var TeamList = new List<string>();
+        //    var config = Configuration.Default.WithDefaultLoader();
+        //    var context = BrowsingContext.New(config);
+        //    var document = await context.OpenAsync(leagueURL);
+        //    var AllTeams = document.QuerySelectorAll("th.no-border.team-details");
+
+        //    int i = 0;
+        //    foreach (var item in AllTeams)
+        //    {
+        //        if (i % 3 == 0)
+        //        {
+        //            i++;
+        //            continue;
+        //        }
+        //        else if (i % 3 == 1)
+        //        {
+        //            TeamList.Add(item.TextContent);
+        //        }
+        //        i++;
+        //    }
+        //    var sortedList = TeamList.OrderBy(x => x).ToList();
+        //    foreach (var item in sortedList)
+        //    {
+        //        Console.WriteLine(item);
+        //    }
+        //}
 
         static async Task ScrapeNewTeams()
         {
@@ -226,11 +317,27 @@ namespace scottishhockeyreference.Scraper
             var document = await context.OpenAsync(leagueURL);
 
             // Get Leagues from Database
-            // var leagueResponse = await client.GetAsync("http://localhost:33988/api/Leagues");
-            var leagueResponse = await client.GetAsync("http://localhost:5000/api/Leagues");
-            leagueResponse.EnsureSuccessStatusCode();
-            var leagueResponseBody = await leagueResponse.Content.ReadAsStringAsync();
-            var leagueList = JsonConvert.DeserializeObject<List<League>>(leagueResponseBody);
+            var leagueList = new List<League>();
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            var sqlSelect = "SELECT * FROM Leagues";
+            var cmd = new MySqlCommand(sqlSelect, conn);
+            using (MySqlDataReader rdr = cmd.ExecuteReader())
+            {
+                while (rdr.Read())
+                {
+                    /* iterate once per row */
+                    var league = new League(rdr.GetInt32(0), (rdr.IsDBNull(1)) ? "" : rdr.GetString(1), rdr.GetInt32(2));
+                    leagueList.Add(league);
+                }
+            }
+
+
+            //// var leagueResponse = await client.GetAsync("http://localhost:33988/api/Leagues");
+            //var leagueResponse = await client.GetAsync("http://localhost:5000/api/Leagues");
+            //leagueResponse.EnsureSuccessStatusCode();
+            //var leagueResponseBody = await leagueResponse.Content.ReadAsStringAsync();
+            //var leagueList = JsonConvert.DeserializeObject<List<League>>(leagueResponseBody);
 
             // Scrape all leagues
             var LeagueList = new List<string>();
@@ -246,18 +353,18 @@ namespace scottishhockeyreference.Scraper
 
             // For each league table
             var leagueTeams = document.QuerySelectorAll("table.league-standings");
-            foreach(var league in leagueTeams)
+            foreach (var league in leagueTeams)
             {
-                if (league.TextContent.Contains("Conference") || league.TextContent.Contains("Super"))
+                if (LeagueList[index].Contains("Conference") || LeagueList[index].Contains("Super"))
                 {
-                    System.Console.WriteLine("Skipped non-standard league: " + league.TextContent);
+                    Console.WriteLine("Skipped non-standard league: " + LeagueList[index]);
+                    index++;
                     continue;
                 }
-                System.Console.WriteLine(index);
                 var rank = 1;
                 // For each row in league
                 var teamRow = league.QuerySelectorAll("tr.mobile-border");
-                foreach(var div in teamRow)
+                foreach (var div in teamRow)
                 {
                     string currentLeague = LeagueList[index];
                     string currentTeam = "";
@@ -268,17 +375,17 @@ namespace scottishhockeyreference.Scraper
                     int i = 0;
                     foreach (var item in teamDetails)
                     {
-                        if (i%3 == 0)
+                        if (i % 3 == 0)
                         {
                             i++;
                             continue;
                         }
-                        else if(i%3==1)
+                        else if (i % 3 == 1)
                         {
                             currentTeam = item.TextContent;
 
                         }
-                        else if(i%3==2)
+                        else if (i % 3 == 2)
                         {
                             currentSponsor = item.TextContent;
 
@@ -286,24 +393,44 @@ namespace scottishhockeyreference.Scraper
                         i++;
                     }
                     // Get Category
-                    var teamToPost = new Team();
-                    teamToPost.Teamname = currentTeam;
-                    teamToPost.Sponsor = currentSponsor;
-                    teamToPost.League_Rank = rank;
+                    var teamToPost = new Team
+                    {
+                        Teamname = currentTeam,
+                        Sponsor = currentSponsor,
+                        League_Rank = rank
+                    };
+                    // Console.WriteLine(JsonConvert.SerializeObject(teamToPost));
                     GetLeagueIDAndCategoryByName(leagueList, currentLeague, teamToPost);
 
-                    await SaveTeam(teamToPost);
+                    SaveTeamSQL(teamToPost);
                     rank++;
                 }
                 index++;
             }
         }
 
+        private static void SaveTeamSQL(Team teamToPost)
+        {
+            Console.WriteLine(JsonConvert.SerializeObject(teamToPost));
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            MySqlCommand cmd = conn.CreateCommand();
+            cmd.CommandText = "INSERT INTO Teams (TeamName, League_ID, Sponsor, League_Rank, Hockey_Category_ID) " +
+                "VALUES (@TEAMNAME, @LEAGUE_ID, @SPONSOR, @LEAGUE_RANK, @CATEGORY)";
+            cmd.Parameters.AddWithValue("@TEAMNAME", teamToPost.Teamname);
+            cmd.Parameters.AddWithValue("@LEAGUE_ID", teamToPost.League_ID);
+            cmd.Parameters.AddWithValue("@SPONSOR", teamToPost.Sponsor);
+            cmd.Parameters.AddWithValue("@LEAGUE_RANK", teamToPost.League_Rank);
+            cmd.Parameters.AddWithValue("@CATEGORY", teamToPost.Hockey_Category_ID);
+            cmd.ExecuteNonQuery();
+            conn.Close();
+        }
+
         private static void GetLeagueIDAndCategoryByName(List<League> leagueList, string currentLeague, Team team)
         {
-            foreach(var league in leagueList)
+            foreach (var league in leagueList)
             {
-                if(league.Name.Equals(currentLeague))
+                if (league.Name.Equals(currentLeague))
                 {
                     team.League_ID = league.Id;
                     team.Hockey_Category_ID = league.Hockey_Category_ID;
@@ -328,24 +455,24 @@ namespace scottishhockeyreference.Scraper
             return 1;
         }
 
-        public static async Task SaveTeam(Team teamToPost)
-        {
-            System.Console.WriteLine(JsonConvert.SerializeObject(teamToPost));
-            // await client.PostAsJsonAsync("http://localhost:33988/api/Teams", teamToPost);
-            var response = await client.PostAsJsonAsync("http://localhost:5000/api/Teams", teamToPost);
-            System.Console.WriteLine(response);
+        //public static async Task SaveTeam(Team teamToPost)
+        //{
+        //    System.Console.WriteLine(JsonConvert.SerializeObject(teamToPost));
+        //    // await client.PostAsJsonAsync("http://localhost:33988/api/Teams", teamToPost);
+        //    var response = await client.PostAsJsonAsync("http://localhost:5000/api/Teams", teamToPost);
+        //    System.Console.WriteLine(response);
 
-        }
+        //}
 
 
-        public static async Task SaveLeague(string name, int category)
-        {
-            var leagueToPost = new League(0, name, category);
+        //public static async Task SaveLeague(string name, int category)
+        //{
+        //    var leagueToPost = new League(0, name, category);
 
-            // var response = await client.PostAsJsonAsync("http://localhost:33988/api/Leagues", leagueToPost);
-            var response = await client.PostAsJsonAsync("http://localhost:5000/api/Leagues", leagueToPost);
-            Console.WriteLine(response);
-        }
+        //    var response = await client.PostAsJsonAsync("https://localhost:33988/leagues/create", leagueToPost);
+        //    // var response = await client.PostAsJsonAsync("http://localhost:5000/api/Leagues", leagueToPost);
+        //    Console.WriteLine(response);
+        //}
     }
 
     class Team
@@ -372,7 +499,7 @@ namespace scottishhockeyreference.Scraper
 
     class League
     {
-        public int Id { get; }
+        public int Id { get; set; }
         public string Name { get; set; }
         public int Hockey_Category_ID { get; set; }
 
