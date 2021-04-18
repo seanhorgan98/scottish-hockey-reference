@@ -1,42 +1,289 @@
 ﻿@model IEnumerable<Web.Models.League>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "League Tables";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+@{
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Hockey_Category_Id)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Hockey_Category_Id)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+   IEnumerable<Team> Teams = ViewData["Teams"] as IEnumerable<Team>;
+   IEnumerable<League> Leagues = ViewData["Leagues"] as IEnumerable<League>;
 }
-    </tbody>
-</table>
+
+<h1>League Tables</h1>
+
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a href="#men" class="nav-link active" data-toggle="tab">Men</a>
+    </li>
+    <li class="nav-item">
+        <a href="#women" class="nav-link" data-toggle="tab">Women</a>
+    </li>
+    <li class="nav-item">
+        <a href="#menindoor" class="nav-link" data-toggle="tab">Men Indoor</a>
+    </li>
+    <li class="nav-item">
+        <a href="#womenindoor" class="nav-link" data-toggle="tab">Men Indoor</a>
+    </li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="men">
+        <div class="accordion" id="accordionExample">
+            @{int im = 0;}
+            @foreach (var league in Leagues)
+            {
+                @if (league.Hockey_Category_Id != 1)
+                {
+                    continue;
+                }
+                <div class="card">
+                    <div class="card-header" id="headingOne_@im">
+                        <h2 class="mb-0">
+                            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne_@im" aria-expanded="true" aria-controls="collapseOne_@im">
+                            @league.Name
+                            </button>
+                        </h2>
+                    </div>
+
+                    <div id="collapseOne_@im" class="collapse" aria-labelledby="headingOne_@im" data-parent="#accordionExample">
+                        <div class="card-body">
+                            <table class="table table-hover table-condensed table-responsive">
+                                <thead>
+                                <tr>
+                                    <th style="width: 5%">Position</th>
+                                    <th style="width: 45%">Team</th>
+                                    <th style="width: 5%">Played</th>
+                                    <th style="width: 5%">Won</th>
+                                    <th style="width: 5%">Drawn</th>
+                                    <th style="width: 5%">Lost</th>
+                                    <th style="width: 5%">GF</th>
+                                    <th style="width: 5%">GA</th>
+                                    <th style="width: 5%">GD</th>
+                                    <th style="width: 5%">Points</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var team in Teams)
+                                    {
+                                        @if (league.Id == team.League_ID)
+                                        {
+                                            <tr>
+                                                <td>@team.League_Rank</td>
+                                                <td>@team.Teamname</td>
+                                                <td>@team.SeasonPlayed</td>
+                                                <td>@team.SeasonWon</td>
+                                                <td>@team.SeasonDrawn</td>
+                                                <td>@team.SeasonLost</td>
+                                                <td>@team.SeasonGoalsFor</td>
+                                                <td>@team.SeasonGoalsAgainst</td>
+                                                <td>@team.SeasonGoalDifference</td>
+                                                <td>@team.SeasonPoints</td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            im++;
+        }
+    </div>
+    <div class="tab-pane fade" id="women">
+        <div class="accordion" id="accordionExample">
+            @{int iw = 0;}
+            @foreach (var league in Leagues)
+            {
+                @if (league.Hockey_Category_Id != 2)
+                {
+                    continue;
+                }
+                <div class="card">
+                    <div class="card-header" id="headingOne_@iw">
+                        <h2 class="mb-0">
+                            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne_@iw" aria-expanded="true" aria-controls="collapseOne_@iw">
+                            @league.Name
+                            </button>
+                        </h2>
+                    </div>
+
+                    <div id="collapseOne_@iw" class="collapse" aria-labelledby="headingOne_@iw" data-parent="#accordionExample">
+                        <div class="card-body">
+                            <table class="table table-hover table-condensed table-responsive">
+                                <thead>
+                                <tr>
+                                    <th style="width: 5%">Position</th>
+                                    <th style="width: 45%">Team</th>
+                                    <th style="width: 5%">Played</th>
+                                    <th style="width: 5%">Won</th>
+                                    <th style="width: 5%">Drawn</th>
+                                    <th style="width: 5%">Lost</th>
+                                    <th style="width: 5%">GF</th>
+                                    <th style="width: 5%">GA</th>
+                                    <th style="width: 5%">GD</th>
+                                    <th style="width: 5%">Points</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var team in Teams)
+                                    {
+                                        @if (league.Id == team.League_ID)
+                                        {
+                                            <tr>
+                                                <td>@team.League_Rank</td>
+                                                <td>@team.Teamname</td>
+                                                <td>@team.SeasonPlayed</td>
+                                                <td>@team.SeasonWon</td>
+                                                <td>@team.SeasonDrawn</td>
+                                                <td>@team.SeasonLost</td>
+                                                <td>@team.SeasonGoalsFor</td>
+                                                <td>@team.SeasonGoalsAgainst</td>
+                                                <td>@team.SeasonGoalDifference</td>
+                                                <td>@team.SeasonPoints</td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            iw++;
+        }
+    </div>
+    <div class="tab-pane fade" id="menindoor">
+        <div class="accordion" id="accordionExample">
+            @{int imi = 0;}
+            @foreach (var league in Leagues)
+            {
+                @if (league.Hockey_Category_Id != 3)
+                {
+                    continue;
+                }
+                <div class="card">
+                    <div class="card-header" id="headingOne_@imi">
+                        <h2 class="mb-0">
+                            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne_@imi" aria-expanded="true" aria-controls="collapseOne_@imi">
+                            @league.Name
+                            </button>
+                        </h2>
+                    </div>
+
+                    <div id="collapseOne_@imi" class="collapse" aria-labelledby="headingOne_@imi" data-parent="#accordionExample">
+                        <div class="card-body">
+                            <table class="table table-hover table-condensed table-responsive">
+                                <thead>
+                                <tr>
+                                    <th style="width: 5%">Position</th>
+                                    <th style="width: 45%">Team</th>
+                                    <th style="width: 5%">Played</th>
+                                    <th style="width: 5%">Won</th>
+                                    <th style="width: 5%">Drawn</th>
+                                    <th style="width: 5%">Lost</th>
+                                    <th style="width: 5%">GF</th>
+                                    <th style="width: 5%">GA</th>
+                                    <th style="width: 5%">GD</th>
+                                    <th style="width: 5%">Points</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var team in Teams)
+                                    {
+                                        @if (league.Id == team.League_ID)
+                                        {
+                                            <tr>
+                                                <td>@team.League_Rank</td>
+                                                <td>@team.Teamname</td>
+                                                <td>@team.SeasonPlayed</td>
+                                                <td>@team.SeasonWon</td>
+                                                <td>@team.SeasonDrawn</td>
+                                                <td>@team.SeasonLost</td>
+                                                <td>@team.SeasonGoalsFor</td>
+                                                <td>@team.SeasonGoalsAgainst</td>
+                                                <td>@team.SeasonGoalDifference</td>
+                                                <td>@team.SeasonPoints</td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            imi++;
+        }
+    </div>
+    <div class="tab-pane fade" id="womenindoor">
+        <div class="accordion" id="accordionExample">
+            @{int iwi = 0;}
+            @foreach (var league in Leagues)
+            {
+                @if (league.Hockey_Category_Id != 4)
+                {
+                    continue;
+                }
+                <div class="card">
+                    <div class="card-header" id="headingOne_@iwi">
+                        <h2 class="mb-0">
+                            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne_@iwi" aria-expanded="true" aria-controls="collapseOne_@iwi">
+                            @league.Name
+                            </button>
+                        </h2>
+                    </div>
+
+                    <div id="collapseOne_@iwi" class="collapse" aria-labelledby="headingOne_@iwi" data-parent="#accordionExample">
+                        <div class="card-body">
+                            <table class="table table-hover table-condensed table-responsive">
+                                <thead>
+                                <tr>
+                                    <th style="width: 5%">Position</th>
+                                    <th style="width: 45%">Team</th>
+                                    <th style="width: 5%">Played</th>
+                                    <th style="width: 5%">Won</th>
+                                    <th style="width: 5%">Drawn</th>
+                                    <th style="width: 5%">Lost</th>
+                                    <th style="width: 5%">GF</th>
+                                    <th style="width: 5%">GA</th>
+                                    <th style="width: 5%">GD</th>
+                                    <th style="width: 5%">Points</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var team in Teams)
+                                    {
+                                        @if (league.Id == team.League_ID)
+                                        {
+                                            <tr>
+                                                <td>@team.League_Rank</td>
+                                                <td>@team.Teamname</td>
+                                                <td>@team.SeasonPlayed</td>
+                                                <td>@team.SeasonWon</td>
+                                                <td>@team.SeasonDrawn</td>
+                                                <td>@team.SeasonLost</td>
+                                                <td>@team.SeasonGoalsFor</td>
+                                                <td>@team.SeasonGoalsAgainst</td>
+                                                <td>@team.SeasonGoalDifference</td>
+                                                <td>@team.SeasonPoints</td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            iwi++;
+        }
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
