@@ -24,7 +24,9 @@ namespace Web.Controllers
         // GET: Leagues
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Leagues.ToListAsync());
+            ViewData["Teams"] = await _context.Teams.ToListAsync();
+            ViewData["Leagues"] = await _context.Leagues.ToListAsync();
+            return View();
         }
 
         // GET: Leagues/Details/5

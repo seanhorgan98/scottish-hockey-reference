@@ -5,52 +5,46 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<h1>List of all teams</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
-            <th>
+            <th style="width: 30%">
                 @Html.DisplayNameFor(model => model.Teamname)
+            </th>
+            <th style="width: 20%">
+                @Html.DisplayNameFor(model => model.Sponsor)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.League_ID)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Sponsor)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Movement)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.Rating)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SeasonDrawn)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SeasonGoalDifference)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SeasonGoalsAgainst)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SeasonGoalsFor)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SeasonLost)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.SeasonPlayed)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SeasonPoints)
+                @Html.DisplayNameFor(model => model.SeasonWon)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SeasonWon)
+                @Html.DisplayNameFor(model => model.SeasonDrawn)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SeasonLost)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SeasonGoalsFor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SeasonGoalsAgainst)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SeasonGoalDifference)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SeasonPoints)
             </th>
             <th></th>
         </tr>
@@ -62,45 +56,40 @@
                 @Html.DisplayFor(modelItem => item.Teamname)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.League_ID)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.Sponsor)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Movement)
+                @Html.DisplayFor(modelItem => item.League_ID)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Rating)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.SeasonDrawn)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SeasonGoalDifference)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SeasonGoalsAgainst)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SeasonGoalsFor)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SeasonLost)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.SeasonPlayed)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SeasonPoints)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.SeasonWon)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                @Html.DisplayFor(modelItem => item.SeasonDrawn)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeasonLost)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeasonGoalsFor)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeasonGoalsAgainst)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeasonGoalDifference)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeasonPoints)
+            </td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a>
             </td>
         </tr>
 }
