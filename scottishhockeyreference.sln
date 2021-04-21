@@ -6,6 +6,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{2
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "scottishhockeyreference.Scraper", "scottishhockeyreference.Scraper\scottishhockeyreference.Scraper.csproj", "{C034DB3B-8690-4CF2-82F3-757EC3314134}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "blazorserver", "blazorserver\blazorserver.csproj", "{F21099C9-3DEA-4F74-AF46-BD7672601E5F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,18 @@ Global
 		{C034DB3B-8690-4CF2-82F3-757EC3314134}.Release|x64.Build.0 = Release|Any CPU
 		{C034DB3B-8690-4CF2-82F3-757EC3314134}.Release|x86.ActiveCfg = Release|Any CPU
 		{C034DB3B-8690-4CF2-82F3-757EC3314134}.Release|x86.Build.0 = Release|Any CPU
+		{F21099C9-3DEA-4F74-AF46-BD7672601E5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F21099C9-3DEA-4F74-AF46-BD7672601E5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F21099C9-3DEA-4F74-AF46-BD7672601E5F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F21099C9-3DEA-4F74-AF46-BD7672601E5F}.Debug|x64.Build.0 = Debug|Any CPU
+		{F21099C9-3DEA-4F74-AF46-BD7672601E5F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F21099C9-3DEA-4F74-AF46-BD7672601E5F}.Debug|x86.Build.0 = Debug|Any CPU
+		{F21099C9-3DEA-4F74-AF46-BD7672601E5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F21099C9-3DEA-4F74-AF46-BD7672601E5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F21099C9-3DEA-4F74-AF46-BD7672601E5F}.Release|x64.ActiveCfg = Release|Any CPU
+		{F21099C9-3DEA-4F74-AF46-BD7672601E5F}.Release|x64.Build.0 = Release|Any CPU
+		{F21099C9-3DEA-4F74-AF46-BD7672601E5F}.Release|x86.ActiveCfg = Release|Any CPU
+		{F21099C9-3DEA-4F74-AF46-BD7672601E5F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
