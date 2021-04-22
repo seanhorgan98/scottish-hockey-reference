@@ -16,24 +16,18 @@ else
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<Team, object>(x=>x.Rating)">Rating</MudTableSortLabel></MudTh>
-            <MudTh>Movement</MudTh>
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<Team, object>(x=>x.Movement)">Movement</MudTableSortLabel></MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Name">@context.Teamname</MudTd>
             <MudTd DataLabel="Rating">@context.Rating</MudTd>
             
             @if(@context.Movement > 0){
-                <td>
-                    <span class="oi oi-chevron-top" style="color:green"></span>
-                    <MudTd DataLabel="Movement">@context.Movement</MudTd>
-                </td>
+                <MudTd DataLabel="Movement" Style="color: green">+@context.Movement</MudTd>
             }else if(@context.Movement < 0){
-                <td>
-                    <span class="oi oi-chevron-bottom" style="color:red"></span>
-                    <MudTd DataLabel="Movement">@context.Movement</MudTd>
-                </td>
+                <MudTd DataLabel="Movement" Style="color: red">-@context.Movement</MudTd>
             }else{
-                <td> </td>
+                <MudTd> </MudTd>
             }
         </RowTemplate>
     </MudTable>
