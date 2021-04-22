@@ -20,7 +20,9 @@ namespace blazorserver
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.UseStaticWebAssets();
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.UseSetting(WebHostDefaults.DetailedErrorsKey, "true");
                 });
     }
 }
