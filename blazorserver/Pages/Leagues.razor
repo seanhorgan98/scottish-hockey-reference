@@ -5,6 +5,7 @@
 @inject IDataAccess _data
 @inject IConfiguration _config
 
+<hr/>
 <h3>League Tables</h3>
 
 <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
@@ -39,9 +40,10 @@
                                 if (!teamIsVisible(league.Id, team))
                                     continue;
                                 position += 1;
+                                var url = "team/" + team.Id;
                                 <tr>
                                     <td>@position</td>
-                                    <td>@team.Teamname</td>
+                                    <td><NavLink class="nav-link" href="@url">@team.Teamname</NavLink></td>
                                     <td>@team.SeasonPlayed</td>
                                     <td>@team.SeasonWon</td>
                                     <td>@team.SeasonDrawn</td>

@@ -4,6 +4,8 @@
 @using Microsoft.Extensions.Configuration
 @inject IDataAccess _data
 @inject IConfiguration _config
+
+<hr/>
 <h3>Rankings</h3>
 
 @if (_teams == null)
@@ -19,14 +21,20 @@ else
             <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<Team, object>(x=>x.Movement)">Movement</MudTableSortLabel></MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd DataLabel="Name">@context.Teamname</MudTd>
+            @{ var url = "team/" + context.Id;}
+            <MudTd DataLabel="Name"><NavLink class="nav-link" href="@url">@context.Teamname</NavLink></MudTd>
             <MudTd DataLabel="Rating">@context.Rating</MudTd>
-            
-            @if(@context.Movement > 0){
+
+            @if (@context.Movement > 0)
+            {
                 <MudTd DataLabel="Movement" Style="color: green">+@context.Movement</MudTd>
-            }else if(@context.Movement < 0){
+            }
+            else if (@context.Movement < 0)
+            {
                 <MudTd DataLabel="Movement" Style="color: red">-@context.Movement</MudTd>
-            }else{
+            }
+            else
+            {
                 <MudTd> </MudTd>
             }
         </RowTemplate>

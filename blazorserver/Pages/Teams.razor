@@ -5,6 +5,7 @@
 @inject IDataAccess _data
 @inject IConfiguration _config
 
+<hr/>
 <h3>Teams</h3>
 @if (_teams == null)
 {
@@ -12,11 +13,11 @@
 }
 else
 {
-    <MudTable Items="@_teams" Dense="true" Hover="true" Bordered="false" Striped="false" Filter="new Func<Team,bool>(FilterFunc)" @bind-SelectedItem="selectedItem" Breakpoint="Breakpoint.Sm" FixedHeader="true">
+    <MudTable Items="@_teams" Dense="true" Hover="true" Bordered="false" Striped="false" Filter="new Func<Team,bool>(FilterFunc)" Breakpoint="Breakpoint.Sm" FixedHeader="true">
         <ToolBarContent>
             <MudText Typo="Typo.h6">List of all teams</MudText>
             <MudToolBarSpacer />
-            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
         </ToolBarContent>
         <HeaderContent>
             <MudTh><MudTableSortLabel SortBy="new Func<Team, object>(x=>x.Teamname)">Name</MudTableSortLabel></MudTh>
@@ -31,7 +32,8 @@ else
             <MudTh><MudTableSortLabel SortBy="new Func<Team, object>(x=>x.SeasonPoints)">Points</MudTableSortLabel></MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd DataLabel="Name">@context.Teamname</MudTd>
+            @{ var url = "team/" + @context.Id;}
+            <MudTd DataLabel="Name"><NavLink class="nav-link" href="@url">@context.Teamname</NavLink></MudTd>
             <MudTd DataLabel="Sponsor">@context.Sponsor</MudTd>
             <MudTd DataLabel="Played">@context.SeasonPlayed</MudTd>
             <MudTd DataLabel="Won">@context.SeasonWon</MudTd>
@@ -47,9 +49,7 @@ else
 
 @code {
     private List<Team> _teams;
-    private string searchString = "";
-    private Team selectedItem = null;
-    private HashSet<Team> selectedItems = new HashSet<Team>();
+    private string _searchString = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -59,9 +59,9 @@ else
     
     private bool FilterFunc(Team element)
     {
-        if (string.IsNullOrWhiteSpace(searchString))
+        if (string.IsNullOrWhiteSpace(_searchString))
             return true;
-        if (element.Teamname.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        if (element.Teamname != null && element.Teamname.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         return false;
     }
