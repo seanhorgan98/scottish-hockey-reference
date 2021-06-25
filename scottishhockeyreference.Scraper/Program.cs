@@ -18,7 +18,8 @@ namespace scottishhockeyreference.Scraper
         // private static readonly string connectionString = "server=aa1su4hgu44u0mv.cxkd3gywhaht.eu-west-1.rds.amazonaws.com; port=3306; database=shr_prod; user=proddb; password=H4ppyF4c3; Persist Security Info=False; Connect Timeout=300";
         private const string connectionString = "server=localhost; port=3306; database=scottishhockeyreference; user=root; password=root; Persist Security Info=False; Connect Timeout=300";
 
-        private static async Task Main()
+        //private static async Task Main()
+        private static void Main()
         {
             //var clientHandler = new HttpClientHandler
             //{
@@ -33,7 +34,8 @@ namespace scottishhockeyreference.Scraper
             // await ScrapeNewTeams();
             // await ScrapePoints();
             // await ScrapeResults();
-            await TestScrape();
+            // await TestScrape();
+            CalculateElo(1350, 4, 1600, 0, 0);
         }
 
         private static async Task TestScrape()
@@ -123,21 +125,75 @@ namespace scottishhockeyreference.Scraper
                     var fixtureCategory = GetCategoryByLeague(leagueList, fixtureLeague);
                     if (fixtureTeamOne == 0 || fixtureTeamTwo == 0) continue;
 
-                    var eloChange = CalculateElo(fixtureTeamOne, fixtureTeamOneScore, fixtureTeamTwo, fixtureTeamTwoScore);
-                    PostFixtureToDatabase();
-                    UpdateTeamEloRating(Team One, Elochange);
-                    UpdateTeamEloRating(Team Two, EloChange);
+                    //var eloChange = CalculateElo(fixtureTeamOne, fixtureTeamOneScore, fixtureTeamTwo, fixtureTeamTwoScore);
+                    //PostFixtureToDatabase();
+                    //UpdateTeamEloRating(Team One, Elochange);
+                    //UpdateTeamEloRating(Team Two, EloChange);
                     Console.WriteLine($"{fixtureDate.ToShortDateString()}: {fixtureLeague}, {fixtureTeamOne} {fixtureTeamOneScore} - {fixtureTeamTwoScore} {fixtureTeamTwo}, {fixtureLocation}");
                 }
             }
             SetMostRecentDay(topDate);
         }
 
-        private static int CalculateElo(int teamOne, int scoreOne, int teamTwo, int scoreTwo, int league)
+        private static void CalculateElo(int teamOneRating, int scoreOne, int teamTwoRating, int scoreTwo, int league)
         {
-            // Get team current ELOs
+            // Variables
+            double K = 24;
+            var scoreDifference = Math.Abs(scoreOne - scoreTwo);
+            System.Console.WriteLine("Score Differece: " + scoreDifference);
+            if (scoreDifference == 2)
+            {
+                K += K * 0.5;
+            }else if (scoreDifference == 3)
+            {
+                K += K * 0.75;
+            }else if (scoreDifference > 3){
+                K += K * 0.75 + (scoreDifference-3)/8D;
+            }
+            var denominator = 400;
+            float W = 1;              // w is the margin of victory weighting
+            float Sa, Sb;
+            if (scoreOne > scoreTwo)
+            {
+                Sa = 1.0f;
+                Sb = 0.0f;
+            }
+            else if (scoreTwo > scoreOne)
+            {
+                Sa = 0.0f;
+                Sb = 1.0f;
+            }else
+            {
+                Sa = 0.5f;
+                Sb = 0.5f;
+            }
+            double ratingDifferenceA = teamTwoRating - teamOneRating;
+            double ratingDifferenceB = teamOneRating - teamTwoRating;
+            double expoA = ratingDifferenceA/denominator;
+            double expoB = ratingDifferenceB/denominator;
 
-            // Calculate 
+            // Expected probability
+            var Ea = 1 / (1 + Math.Pow(10D, expoA));
+            var Eb = 1 / (1 + Math.Pow(10D, expoB));
+
+            // New Elo calculations
+            var teamOneNewElo = teamOneRating + Math.Round(K * W * (Sa - Ea));
+            var teamTwoNewElo = teamTwoRating + Math.Round(K * W * (Sb - Eb));
+
+            var EloChange = Math.Abs(Math.Round(K * W * (Sb - Eb)));
+
+            // Absolute Floor
+            if (teamOneNewElo < 100)
+            {
+                teamOneNewElo = teamOneRating;
+            }
+            if (teamTwoNewElo < 100)
+            {
+                teamTwoNewElo = teamTwoRating;
+            }
+
+            System.Console.WriteLine($"A Elo: {teamOneRating}, B Elo: {teamTwoRating}\nA' Rating: {teamOneNewElo}, B' Elo: {teamTwoNewElo}, EloChange: {EloChange}, K: {K}");
+            // return teamOneNewElo;
         }
 
         private static void UpdateTeamEloRating(int teamID, int eloChange)
@@ -147,7 +203,7 @@ namespace scottishhockeyreference.Scraper
             // Update Movement
         }
 
-        private static void PostFixtureToDatabase(DateTime date, int league, int teamOne, int teamTwo, int teamOneScore, int teamTwoScore, string location, int elo)
+        private static void PostFixtureToDatabase(DateTime date, int league, int teamOne, int teamTwo, int teamOneScore, int teamTwoScore, string location, int elo, int category)
         {
             var conn = new MySqlConnection(connectionString);
             conn.Open();
@@ -182,13 +238,10 @@ VALUES
             cmd.Parameters.AddWithValue("@LEAGUE", league);
             cmd.Parameters.AddWithValue("@SCOREONE", teamOneScore);
             cmd.Parameters.AddWithValue("@SCORETWO", teamTwoScore);
-            cmd.Parameters.AddWithValue("@ELO", eloChange);
-            cmd.Parameters.AddWithValue("@CATEGORY", mrDate);
+            cmd.Parameters.AddWithValue("@ELO", elo);
+            cmd.Parameters.AddWithValue("@CATEGORY", category);
             cmd.ExecuteNonQuery();
             conn.Close();
-
-            var sql =
-
         }
 
         private static DateTime GetMostRecentDate()
