@@ -142,15 +142,34 @@ namespace scottishhockeyreference.Scraper
 
             foreach (var fixture in fixtureList)
             {
-                    var eloChanges = CalculateElo(fixture.teamOne, fixture.teamOneScore, fixture.teamTwo, fixture.teamTwoScore, 0, fixture.category);
-                    var eloOneChange = eloChanges.Item1;
-                    var eloTwoChange = eloChanges.Item2;
-                    PostFixtureToDatabase(fixture.Date, fixture.league, fixture.teamOne, fixture.teamTwo, fixture.teamOneScore, fixture.teamTwoScore, fixture.location, eloOneChange, fixture.category, eloTwoChange);
-                    UpdateTeamEloRating(fixture.teamOne, eloOneChange);
-                    UpdateTeamEloRating(fixture.teamTwo, eloTwoChange);
-                    Console.WriteLine($"{fixture.Date.ToShortDateString()}: {fixture.league}, {fixture.teamOne} {fixture.teamOneScore} - {fixture.teamTwoScore} {fixture.teamTwo}, {fixture.location}");
+                var teamOneRating = GetTeamRating(fixture.teamOne);
+                var teamTwoRating = GetTeamRating(fixture.teamTwo);
+                var eloChanges = CalculateElo(teamOneRating, fixture.teamOneScore, teamTwoRating, fixture.teamTwoScore, 0, fixture.category);
+                var eloOneChange = eloChanges.Item1;
+                var eloTwoChange = eloChanges.Item2;
+                PostFixtureToDatabase(fixture.Date, fixture.league, fixture.teamOne, fixture.teamTwo, fixture.teamOneScore, fixture.teamTwoScore, fixture.location, eloOneChange, fixture.category, eloTwoChange);
+                UpdateTeamEloRating(fixture.teamOne, eloOneChange);
+                UpdateTeamEloRating(fixture.teamTwo, eloTwoChange);
+                Console.WriteLine($"{fixture.Date.ToShortDateString()}: {fixture.league}, {fixture.teamOne} {fixture.teamOneScore} - {fixture.teamTwoScore} {fixture.teamTwo}, {fixture.location}");
             }
             //SetMostRecentDay(topDate);
+        }
+
+        private static int GetTeamRating(int teamID)
+        {
+            var rating = 0;
+            var conn = new MySqlConnection(connectionString);
+            conn.Open();
+            MySqlCommand cmd = conn.CreateCommand();
+            cmd.CommandText = @"SELECT Rating FROM Teams WHERE ID = @TEAMID;";
+            cmd.Parameters.AddWithValue("@TEAMID", teamID);
+            using (MySqlDataReader rdr = cmd.ExecuteReader()) {
+                while (rdr.Read()) {
+                    /* iterate once per row */
+                    rating = rdr.GetInt32(0);
+                }
+            }
+            return rating;
         }
 
         private static (int, int) CalculateElo(int teamOneRating, int scoreOne, int teamTwoRating, int scoreTwo, int league, int category)
