@@ -1,7 +1,9 @@
 namespace WebScraper
 {
+    using System.Threading.Tasks;
+
     public interface IWebScraper
     {
-        void Run();
+        Task Run();
     }
 }

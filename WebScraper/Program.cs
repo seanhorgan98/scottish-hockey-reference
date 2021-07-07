@@ -25,7 +25,7 @@ namespace WebScraper
         // private static readonly string connectionString = "server=aa1su4hgu44u0mv.cxkd3gywhaht.eu-west-1.rds.amazonaws.com; port=3306; database=shr_prod; user=proddb; password=H4ppyF4c3; Persist Security Info=False; Connect Timeout=300";
         private const string connectionString = "server=localhost; port=3306; database=scottishhockeyreference; user=root; password=root; Persist Security Info=False; Connect Timeout=300";
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             var builder = new ConfigurationBuilder();
             BuildConfig(builder);
@@ -47,7 +47,7 @@ namespace WebScraper
                 .Build();
 
             var svc = ActivatorUtilities.CreateInstance<WebScraper>(host.Services);
-            svc.Run();
+            await svc.Run();
         }
         static void BuildConfig(IConfigurationBuilder builder)
         {

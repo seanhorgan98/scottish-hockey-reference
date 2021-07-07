@@ -2,6 +2,7 @@ namespace WebScraper
 {
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
+    using System.Threading.Tasks;
 
     public class WebScraper : IWebScraper
     {
@@ -14,10 +15,12 @@ namespace WebScraper
             _config = config;
         }
 
-        public void Run()
+        public async Task Run()
         {
             _log.LogInformation("Entered Web Scraper class.");
-            _log.LogInformation($"Config value: {_config.GetValue<int>("TestValue")}");
+
+            var leagueList = await ScrapeLeagues.Scrape();
+            _log.LogInformation("Leagues: {leagueList}", leagueList);
         }
     }
 }
