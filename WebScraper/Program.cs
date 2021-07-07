@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using AngleSharp.Dom;
 using MySql.Data.MySqlClient;
 
-namespace scottishhockeyreference.Scraper
+namespace WebScraper
 {
     internal class Program
     {
@@ -37,7 +37,8 @@ namespace scottishhockeyreference.Scraper
             // await ScrapePoints();
             // await ScrapeResults();
             // await TestScrape();
-            RerunFixturesForElos();
+            // RerunFixturesForElos();
+            System.Console.WriteLine("Program Ran");
         }
 
         private static void RerunFixturesForElos()
