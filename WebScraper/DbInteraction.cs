@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
@@ -20,6 +21,7 @@ namespace WebScraper
 
         public void UpdatePoints(Team teamToUpdate)
         {
+            _log.LogTrace("Updating points for team: {Name}, ID: {Id}", teamToUpdate.TeamName, teamToUpdate.ID);
             var conn = new MySqlConnection(_config.GetValue<string>("ConnectionString"));
             conn.Open();
             var cmd = conn.CreateCommand();
@@ -50,6 +52,7 @@ WHERE ID = @ID;";
 
         public void UpdateEloRating(int teamID, int eloChange)
         {
+            _log.LogTrace("Updating Elo for team: {Id}, Value: {Elo}", teamID, eloChange);
             var conn = new MySqlConnection(_config.GetValue<string>("ConnectionString"));
             conn.Open();
             var cmd = conn.CreateCommand();
@@ -178,7 +181,73 @@ VALUES (@TEAMNAME, @LEAGUE_ID, @SPONSOR, @LEAGUE_RANK, @CATEGORY)";
             cmd.ExecuteNonQuery();
             conn.Close();
         }
-        
+
+        public List<League> GetAllLeagues()
+        {
+            var conn = new MySqlConnection(_config.GetValue<string>("ConnectionString"));
+            conn.Open();
+            var leagueList = new List<League>();
+            var sqlSelect = "SELECT * FROM Leagues;";
+            var cmd = new MySqlCommand(sqlSelect, conn);
+            using var rdr = cmd.ExecuteReader();
+            while (rdr.Read()) {
+                /* iterate once per row */
+                var league = new League
+                {
+                    Id = rdr.GetInt32(0), Name = rdr.GetString(1), HockeyCategoryID = rdr.GetInt32(2)
+                };
+                leagueList.Add(league);
+            }
+
+            return leagueList;
+        }
+
+        public List<Team> GetAllTeams()
+        {
+            var returnList = new List<Team>();
+            var conn = new MySqlConnection(_config.GetValue<string>("ConnectionString"));
+            conn.Open();
+            const string sqlSelect = @"SELECT ID,
+    League_ID,
+    Hockey_Category_ID,
+    Sponsor,
+    League_Rank,
+    SeasonPlayed,
+    SeasonWon,
+    SeasonDrawn,
+    SeasonLost,
+    SeasonGoalsFor,
+    SeasonGoalsAgainst,
+    SeasonGoalDifference,
+    SeasonPoints,
+    Teamname FROM Teams; ";
+            var cmd = new MySqlCommand(sqlSelect, conn);
+            using var rdr = cmd.ExecuteReader();
+            while (rdr.Read())
+            {
+                /* iterate once per row */
+                var team = new Team
+                {
+                    TeamName = (rdr.IsDBNull(13)) ? "" : rdr.GetString(13),
+                    ID = rdr.GetInt32(0),
+                    LeagueID = rdr.GetInt32(1),
+                    HockeyCategoryID = rdr.GetInt32(2),
+                    Sponsor = (rdr.IsDBNull(3)) ? "" : rdr.GetString(3),
+                    LeagueRank = rdr.GetInt32(4),
+                    SeasonPlayed = rdr.GetInt32(5),
+                    SeasonWon = rdr.GetInt32(6),
+                    SeasonDrawn = rdr.GetInt32(7),
+                    SeasonLost = rdr.GetInt32(8),
+                    SeasonGoalsFor = rdr.GetInt32(9),
+                    SeasonGoalsAgainst = rdr.GetInt32(10),
+                    SeasonGoalDifference = rdr.GetInt32(11),
+                    SeasonPoints = rdr.GetInt32(12)
+                };
+                returnList.Add(team);
+            }
+
+            return returnList;
+        }
         
     }
 }

@@ -145,7 +145,8 @@ namespace WebScraper
 
         }
 
-        private static async Task TestScrape()
+        // Test Scrape is for scraping fixtures from a league page file
+        /*private static async Task TestScrape()
         {
             // Get List of Leagues
             var conn = new MySqlConnection(connectionString);
@@ -155,7 +156,7 @@ namespace WebScraper
             var cmd = new MySqlCommand(sqlSelect, conn);
             using (MySqlDataReader rdr = cmd.ExecuteReader()) {
                 while (rdr.Read()) {
-                    /* iterate once per row */
+                    /* iterate once per row #1#
                     var league = new League(rdr.GetInt32(0), rdr.GetString(1), rdr.GetInt32(2));
                     leagueList.Add(league);
                 }
@@ -167,7 +168,7 @@ namespace WebScraper
             var cmdTeam = new MySqlCommand(sqlSelect, conn);
             using (MySqlDataReader rdr = cmdTeam.ExecuteReader()) {
                 while (rdr.Read()) {
-                    /* iterate once per row */
+                    /* iterate once per row #1#
                     var team = new Team
                     {
                         ID = rdr.GetInt32(0),
@@ -258,7 +259,7 @@ namespace WebScraper
                 Console.WriteLine($"{fixture.Date.ToShortDateString()}: {fixture.league}, {fixture.teamOne} {fixture.teamOneScore} - {fixture.teamTwoScore} {fixture.teamTwo}, {fixture.location}");
             }
             //SetMostRecentDay(topDate);
-        }
+        }*/
 
         /*private static int GetTeamRating(int teamID)
         {
@@ -277,7 +278,7 @@ namespace WebScraper
             return rating;
         }*/
 
-        private static (int, int) CalculateElo(int teamOneRating, int scoreOne, int teamTwoRating, int scoreTwo, int league, int category)
+        /*private static (int, int) CalculateElo(int teamOneRating, int scoreOne, int teamTwoRating, int scoreTwo, int league, int category)
         {
             // Variables
             double K = 24;
@@ -342,7 +343,7 @@ namespace WebScraper
 
             //System.Console.WriteLine($"A Elo: {teamOneRating}, B Elo: {teamTwoRating}\nA' Rating: {teamOneNewElo}, B' Elo: {teamTwoNewElo}, EloChange: {EloChange}, K: {K}");
             return (teamOneEloChange, teamTwoEloChange);
-        }
+        }*/
 
         /*private static void UpdateTeamEloRating(int teamID, int eloChange)
         {
@@ -431,7 +432,8 @@ VALUES
             conn.Close();
         }*/
 
-        private static int GetCategoryByLeague(IEnumerable<League> leagueList, int currentLeagueId)
+        // Used by test scrape (fixtures)
+        /*private static int GetCategoryByLeague(IEnumerable<League> leagueList, int currentLeagueId)
         {
             League temp = leagueList.SingleOrDefault(x => x.Id == currentLeagueId);
             if (temp != null)
@@ -440,9 +442,10 @@ VALUES
             }else{
                 return 1;
             }
-        }
+        }*/
 
-        private static int GetTeamIdByName(IEnumerable<Team> teamList, string currentTeam)
+        // Used by test scrape (fixtures)
+        /*private static int GetTeamIdByName(IEnumerable<Team> teamList, string currentTeam)
         {
             foreach (var team in teamList)
             {
@@ -450,8 +453,9 @@ VALUES
                 return team.ID;
             }
             return 0;
-        }
+        }*/
 
+        // Used by test scrape (fixtures)
         private static int GetLeagueIDByName(IEnumerable<League> leagueList, string currentLeague)
         {
             foreach (var league in leagueList)
@@ -565,7 +569,7 @@ VALUES
 
         }*/
 
-        private static async Task ScrapePoints()
+        /*private static async Task ScrapePoints()
         {
             var config = Configuration.Default.WithDefaultLoader();
             var context = BrowsingContext.New(config);
@@ -594,7 +598,7 @@ VALUES
             {
                 while (rdr.Read())
                 {
-                    /* iterate once per row */
+                    /* iterate once per row #1#
                     var team = new Team
                     {
                         Teamname = (rdr.IsDBNull(13)) ? "" : rdr.GetString(13),
@@ -724,7 +728,7 @@ VALUES
                     }
                 }
             }
-        }
+        }*/
 
         /*private static void SavePointsSQL(Team teamToUpdate)
         {
@@ -901,7 +905,7 @@ VALUES (@TEAMNAME, @LEAGUE_ID, @SPONSOR, @LEAGUE_RANK, @CATEGORY)";
             conn.Close();
         }*/
 
-        private static void GetLeagueIdAndCategoryByName(IEnumerable<League> leagueList, string currentLeague, Team team)
+        /*private static void GetLeagueIdAndCategoryByName(IEnumerable<League> leagueList, string currentLeague, Team team)
         {
             foreach (var league in leagueList)
             {
@@ -909,9 +913,10 @@ VALUES (@TEAMNAME, @LEAGUE_ID, @SPONSOR, @LEAGUE_RANK, @CATEGORY)";
                 team.League_ID = league.Id;
                 team.Hockey_Category_ID = league.Hockey_Category_ID;
             }
-        }
+        }*/
 
-        private static int GetLeagueHockeyCategoryByName(string teamname)
+        // Used in league scraper
+        /*private static int GetLeagueHockeyCategoryByName(string teamname)
         {
             if ((teamname.Contains("Women") || teamname.Contains("Ladies")) && teamname.Contains("Indoor"))
             {
@@ -926,7 +931,7 @@ VALUES (@TEAMNAME, @LEAGUE_ID, @SPONSOR, @LEAGUE_RANK, @CATEGORY)";
                 return 2;
             }
             return 1;
-        }
+        }*/
 
         //public static async Task SaveTeam(Team teamToPost)
         //{
@@ -948,7 +953,7 @@ VALUES (@TEAMNAME, @LEAGUE_ID, @SPONSOR, @LEAGUE_RANK, @CATEGORY)";
         //}
     }
 
-    internal class Fixture
+    /*internal class Fixture
     {
         public DateTime Date { get; set; }
         public int teamOne { get; set; }
@@ -959,7 +964,7 @@ VALUES (@TEAMNAME, @LEAGUE_ID, @SPONSOR, @LEAGUE_RANK, @CATEGORY)";
         public int category { get; set; }
         public string location { get; set; }
         public int id { get; set; }
-    }
+    }*/
 
     // [SuppressMessage("ReSharper", "InconsistentNaming")]
     // internal class Team

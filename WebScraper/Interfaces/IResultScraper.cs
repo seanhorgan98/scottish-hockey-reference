@@ -4,8 +4,8 @@ using WebScraper.Models;
 
 namespace WebScraper.Interfaces
 {
-    public interface IPointsScraper
+    public interface IResultScraper
     {
-        Task<List<Team>> ScrapeAsync();
+        Task<List<Fixture>> ScrapeAsync();
     }
 }

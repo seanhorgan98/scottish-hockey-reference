@@ -23,7 +23,7 @@ namespace WebScraper.Scrapers
             _config = config;
         }
 
-        public async Task<List<Team>> Scrape()
+        public async Task<List<Team>> ScrapeAsync()
         {
             _log.LogInformation("Entering Team Scraper");
             var config = Default.WithDefaultLoader();

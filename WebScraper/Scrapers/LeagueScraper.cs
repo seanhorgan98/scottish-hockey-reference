@@ -22,7 +22,7 @@ namespace WebScraper.Scrapers
             _config = config;
         }
 
-        public async Task<List<League>> Scrape()
+        public async Task<List<League>> ScrapeAsync()
         {
             var config = Configuration.Default.WithDefaultLoader();
             var context = BrowsingContext.New(config);
@@ -35,7 +35,7 @@ namespace WebScraper.Scrapers
             {
                 if (item.TextContent.Contains("Conference") || item.TextContent.Contains("Super"))
                 {
-                    _log.LogInformation("Skipped non-standard league: {league}", item.TextContent);
+                    _log.LogInformation("Skipped non-standard league: {League}", item.TextContent);
                     continue;
                 }
                 // SaveLeagueSql(item.TextContent, GetLeagueHockeyCategoryByName(item.TextContent));

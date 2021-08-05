@@ -6,6 +6,6 @@ namespace WebScraper.Interfaces
 {
     public interface ILeagueScraper
     {
-        Task<List<League>> Scrape();
+        Task<List<League>> ScrapeAsync();
     }
 }
