@@ -1,6 +1,7 @@
 @page "/team/{Id}"
 @using DataLibrary
 @using blazorserver.Models
+@using blazorserver.Components
 @using Microsoft.Extensions.Configuration
 @inject IDataAccess _data
 @inject IConfiguration _config
@@ -59,58 +60,68 @@ else
     <h2>Seasons</h2>
 
     <MudSimpleTable Hover="true" Breakpoint="Breakpoint.Sm" Height="500px" FixedHeader="true"
-              Dense="true">
+                    Dense="true">
         <thead>
-            <th>Season</th>
-            <th>League</th>
-            <th>League Placing</th>
-            <th>Played</th>
-            <th>Wins</th>
-            <th>Draws</th>
-            <th>Losses</th>
-            <th>Goals For</th>
-            <th>Goals Against</th>
-            <th>Goal Difference</th>
-            <th>Points</th>
-            <th>Sponsor</th>
-            <th>Rating</th>
+        <th>Season</th>
+        <th>League</th>
+        <th>League Placing</th>
+        <th>Played</th>
+        <th>Wins</th>
+        <th>Draws</th>
+        <th>Losses</th>
+        <th>Goals For</th>
+        <th>Goals Against</th>
+        <th>Goal Difference</th>
+        <th>Points</th>
+        <th>Sponsor</th>
+        <th>Rating</th>
         </thead>
         <tbody>
-            @foreach (var season in Snapshots)
-            {
-                <tr>
-                    <td>@Seasons.Single(x => x.Id == season.SeasonId).Name</td>
-                    <td>@Leagues.Single(x => x.Id == season.LeagueId).Name</td>
-                    <td>@season.LeaguePlacing</td>
-                    <td>@season.Played</td>
-                    <td>@season.Won</td>
-                    <td>@season.Drawn</td>
-                    <td>@season.Lost</td>
-                    <td>@season.GoalsFor</td>
-                    <td>@season.GoalsAgainst</td>
-                    <td>@season.GoalDifference</td>
-                    <td>@season.Points</td>
-                    <td>@season.Sponsor</td>
-                    <td>@season.Rating</td>
-                </tr>
-            }
+        @foreach (var season in Snapshots)
+        {
             <tr>
-                <td>Total</td>
-                <td>@Leagues.Single(x => x.Id == Team.League_ID).Name</td>
-                <td>@Team.League_Rank</td>
-                <td>@{ var temp = Team.TotalPlayed + Team.SeasonPlayed;}@temp</td>
-                <td>@{ temp = Team.TotalWon + Team.SeasonWon;}@temp</td>
-                <td>@{ temp = Team.TotalDrawn + Team.SeasonDrawn;}@temp</td>
-                <td>@{ temp = Team.TotalLost + Team.SeasonLost;}@temp</td>
-                <td>@{ temp = Team.TotalGoalsFor + Team.SeasonGoalsFor;}@temp</td>
-                <td>@{ temp = Team.TotalGoalsAgainst + Team.SeasonGoalsAgainst;}@temp</td>
-                <td>@{ temp = Team.TotalGoalDifference + Team.SeasonGoalDifference;}@temp</td>
-                <td>@{ temp = Team.TotalPoints + Team.SeasonPoints;}@temp</td>
-                <td>@Team.Sponsor</td>
-                <td>@Team.Rating</td>
+                <td>@Seasons.Single(x => x.Id == season.SeasonId).Name</td>
+                <td>@Leagues.Single(x => x.Id == season.LeagueId).Name</td>
+                <td>@season.LeaguePlacing</td>
+                <td>@season.Played</td>
+                <td>@season.Won</td>
+                <td>@season.Drawn</td>
+                <td>@season.Lost</td>
+                <td>@season.GoalsFor</td>
+                <td>@season.GoalsAgainst</td>
+                <td>@season.GoalDifference</td>
+                <td>@season.Points</td>
+                <td>@season.Sponsor</td>
+                <td>@season.Rating</td>
             </tr>
+        }
+        <tr>
+            <td>Total</td>
+            <td>@Leagues.Single(x => x.Id == Team.League_ID).Name</td>
+            <td>@Team.League_Rank</td>
+            <td>@{ var temp = Team.TotalPlayed + Team.SeasonPlayed;}@temp</td>
+            <td>@{ temp = Team.TotalWon + Team.SeasonWon;}@temp</td>
+            <td>@{ temp = Team.TotalDrawn + Team.SeasonDrawn;}@temp</td>
+            <td>@{ temp = Team.TotalLost + Team.SeasonLost;}@temp</td>
+            <td>@{ temp = Team.TotalGoalsFor + Team.SeasonGoalsFor;}@temp</td>
+            <td>@{ temp = Team.TotalGoalsAgainst + Team.SeasonGoalsAgainst;}@temp</td>
+            <td>@{ temp = Team.TotalGoalDifference + Team.SeasonGoalDifference;}@temp</td>
+            <td>@{ temp = Team.TotalPoints + Team.SeasonPoints;}@temp</td>
+            <td>@Team.Sponsor</td>
+            <td>@Team.Rating</td>
+        </tr>
         </tbody>
     </MudSimpleTable>
+    <hr/>
+    
+    // Results in detail
+    <h2>Results</h2>
+    @foreach (var fixture in Results)
+    {
+        var teamOne = Teams.Single(x => x.Id == fixture.Team_1_ID).Teamname;
+        var teamTwo = Teams.Single(x => x.Id == fixture.Team_2_ID).Teamname;
+        <FixtureCard Leagues="@Leagues" CurrentFixture="@fixture" TeamOneName="@teamOne" TeamTwoName="@teamTwo"/>
+    }
 }
 
 @code {
@@ -121,7 +132,9 @@ else
     private List<Form> RecentForm { get; set; }
     private List<SeasonSnapshot> Snapshots { get; set; }
     private List<League> Leagues { get; set; }
-    private List<Season> Seasons { get; set; } 
+    private List<Season> Seasons { get; set; }
+    private List<Fixture> Results { get; set; }
+    private List<Team> Teams { get; set; }
     
     protected override async Task OnInitializedAsync()
     {
@@ -133,5 +146,8 @@ ORDER BY Date desc LIMIT 5", new {}, connectionString);
         Snapshots = await _data.LoadData<SeasonSnapshot, dynamic>($"SELECT * FROM SeasonSnapshot WHERE TeamId = {Id};", new {}, connectionString);
         Leagues = await _data.LoadData<League, dynamic>("SELECT * FROM Leagues", new {}, connectionString);
         Seasons = await _data.LoadData<Season, dynamic>("SELECT * FROM Seasons", new {}, connectionString);
+        Teams = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams", new {}, connectionString);
+        Results = await _data.LoadData<Fixture, dynamic>($"SELECT * FROM Fixtures WHERE Team_1_ID = {Id} OR Team_2_ID = {Id} ORDER BY Date desc", new {}, connectionString);
+        
     }
 }
