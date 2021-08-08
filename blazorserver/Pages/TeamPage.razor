@@ -54,46 +54,16 @@ else
         }
         
     </MudButtonGroup>
-    
-    
-    
-    // Season Stats
-    <hr/>
-    <h4>Season Stats</h4>
-    <MudSimpleTable Style="overflow-x: auto;">
-        <thead>
-            <tr>
-                <th>Played</th>
-                <th>Wins</th>
-                <th>Draws</th>
-                <th>Losses</th>
-                <th>Goals For</th>
-                <th>Goals Against</th>
-                <th>Goal Difference</th>
-                <th>Points</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>@Team.SeasonPlayed</td>
-                <td>@Team.SeasonWon</td>
-                <td>@Team.SeasonDrawn</td>
-                <td>@Team.SeasonLost</td>
-                <td>@Team.SeasonGoalsFor</td>
-                <td>@Team.SeasonGoalsAgainst</td>
-                <td>@Team.SeasonGoalDifference</td>
-                <td>@Team.SeasonPoints</td>
-            </tr>
-        </tbody>
-    </MudSimpleTable>
 
-    // Total Stats
-    <hr/>
-    <h4>Total All-time Stats</h4>
-    <p>Since 2020-2021</p>
-    <MudSimpleTable Style="overflow-x: auto;">
+    <hr>
+    <h2>Seasons</h2>
+
+    <MudSimpleTable Hover="true" Breakpoint="Breakpoint.Sm" Height="500px" FixedHeader="true"
+              Dense="true">
         <thead>
-        <tr>
+            <th>Season</th>
+            <th>League</th>
+            <th>League Placing</th>
             <th>Played</th>
             <th>Wins</th>
             <th>Draws</th>
@@ -102,19 +72,43 @@ else
             <th>Goals Against</th>
             <th>Goal Difference</th>
             <th>Points</th>
-        </tr>
+            <th>Sponsor</th>
+            <th>Rating</th>
         </thead>
         <tbody>
-        <tr>
-            <td>@{ var temp = Team.TotalPlayed + Team.SeasonPlayed;}@temp</td>
-            <td>@{ temp = Team.TotalWon + Team.SeasonWon;}@temp</td>
-            <td>@{ temp = Team.TotalDrawn + Team.SeasonDrawn;}@temp</td>
-            <td>@{ temp = Team.TotalLost + Team.SeasonLost;}@temp</td>
-            <td>@{ temp = Team.TotalGoalsFor + Team.SeasonGoalsFor;}@temp</td>
-            <td>@{ temp = Team.TotalGoalsAgainst + Team.SeasonGoalsAgainst;}@temp</td>
-            <td>@{ temp = Team.TotalGoalDifference + Team.SeasonGoalDifference;}@temp</td>
-            <td>@{ temp = Team.TotalPoints + Team.SeasonPoints;}@temp</td>
-        </tr>
+            @foreach (var season in Snapshots)
+            {
+                <tr>
+                    <td>@Seasons.Single(x => x.Id == season.SeasonId).Name</td>
+                    <td>@Leagues.Single(x => x.Id == season.LeagueId).Name</td>
+                    <td>@season.LeaguePlacing</td>
+                    <td>@season.Played</td>
+                    <td>@season.Won</td>
+                    <td>@season.Drawn</td>
+                    <td>@season.Lost</td>
+                    <td>@season.GoalsFor</td>
+                    <td>@season.GoalsAgainst</td>
+                    <td>@season.GoalDifference</td>
+                    <td>@season.Points</td>
+                    <td>@season.Sponsor</td>
+                    <td>@season.Rating</td>
+                </tr>
+            }
+            <tr>
+                <td>Total</td>
+                <td>@Leagues.Single(x => x.Id == Team.League_ID).Name</td>
+                <td>@Team.League_Rank</td>
+                <td>@{ var temp = Team.TotalPlayed + Team.SeasonPlayed;}@temp</td>
+                <td>@{ temp = Team.TotalWon + Team.SeasonWon;}@temp</td>
+                <td>@{ temp = Team.TotalDrawn + Team.SeasonDrawn;}@temp</td>
+                <td>@{ temp = Team.TotalLost + Team.SeasonLost;}@temp</td>
+                <td>@{ temp = Team.TotalGoalsFor + Team.SeasonGoalsFor;}@temp</td>
+                <td>@{ temp = Team.TotalGoalsAgainst + Team.SeasonGoalsAgainst;}@temp</td>
+                <td>@{ temp = Team.TotalGoalDifference + Team.SeasonGoalDifference;}@temp</td>
+                <td>@{ temp = Team.TotalPoints + Team.SeasonPoints;}@temp</td>
+                <td>@Team.Sponsor</td>
+                <td>@Team.Rating</td>
+            </tr>
         </tbody>
     </MudSimpleTable>
 }
@@ -125,13 +119,19 @@ else
 
     private Team Team { get; set; }
     private List<Form> RecentForm { get; set; }
+    private List<SeasonSnapshot> Snapshots { get; set; }
+    private List<League> Leagues { get; set; }
+    private List<Season> Seasons { get; set; } 
     
     protected override async Task OnInitializedAsync()
     {
-        Team = await _data.LoadDataSingle<Team, dynamic>($"SELECT * FROM Teams WHERE ID = {Id};", new {}, _config.GetConnectionString("default"));
+        var connectionString = _config.GetConnectionString("default");
+        Team = await _data.LoadDataSingle<Team, dynamic>($"SELECT * FROM Teams WHERE ID = {Id};", new {}, connectionString);
         RecentForm = await _data.LoadData<Form, dynamic>($@"SELECT Team_1_ID, Team_2_ID, Team_1_Score, Team_2_Score FROM Fixtures 
 WHERE Team_1_ID = {Id} OR Team_2_ID = {Id}
-ORDER BY Date desc LIMIT 5", new {},
-        _config.GetConnectionString("default"));
+ORDER BY Date desc LIMIT 5", new {}, connectionString);
+        Snapshots = await _data.LoadData<SeasonSnapshot, dynamic>($"SELECT * FROM SeasonSnapshot WHERE TeamId = {Id};", new {}, connectionString);
+        Leagues = await _data.LoadData<League, dynamic>("SELECT * FROM Leagues", new {}, connectionString);
+        Seasons = await _data.LoadData<Season, dynamic>("SELECT * FROM Seasons", new {}, connectionString);
     }
 }
