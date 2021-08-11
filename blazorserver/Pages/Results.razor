@@ -1,19 +1,18 @@
 @page "/Results"
 @using DataLibrary
 @using blazorserver.Models
+@using blazorserver.Components
 @using Microsoft.Extensions.Configuration
-@using System.Globalization
 @inject IDataAccess _data
 @inject IConfiguration _config
 
 <hr/>
 <h2>Results</h2>
 
-
 <MudGrid>
     <!-- CATEGORY -->
-    <MudItem xs="6" sm="4" md="2">
-        <MudSelect Label="Category" Placeholder="Select category" @bind-Value="SelectedCategory" OffsetY="true" Variant="Variant.Outlined" >
+    <MudItem xs="10" sm="5" md="3">
+        <MudSelect Label="Category" Placeholder="Select category" @bind-Value="SelectedCategory" OffsetY="true" Dense="true" Variant="Variant.Outlined" >
             <MudSelectItem Value=@("0")>All</MudSelectItem>
             <MudSelectItem Value=@("1")>Men's</MudSelectItem>
             <MudSelectItem Value=@("2")>Women's</MudSelectItem>
@@ -68,33 +67,9 @@
         {
             var team1Name = _teams.Single(x => x.Id == fixture.Team_1_ID).Teamname;
             var team2Name = _teams.Single(x => x.Id == fixture.Team_2_ID).Teamname;
-            // Match Card
-            <MudGrid>
-                <MudItem xs="12" md="12">
-                    <MudPaper Class="d-flex py-2 px-1" Style="background-color: #e3e3e3">
-                        <MudItem xs="3">
-                            <MudPaper Class="pa-2 mx-2 mud-width-full" Elevation="0" Square="true">@fixture.Date.ToString("dd MMMM yyyy", CultureInfo.CurrentCulture)</MudPaper>
-                        </MudItem>
-                        <MudItem xs="12">
-                            <MudPaper Class="d-flex justify-content-center align-center">
-                                <MudItem xs="3" Elevation="0" Class="mud-text-align-center">
-                                    <MudText Typo="Typo.button">@team1Name</MudText>
-                                </MudItem>
-                                <MudItem xs="3" Elevation="0" Class="d-flex align-center flex-column">
-                                    <MudText Typo="Typo.overline">@_leagues.Single(x => x.Id == fixture.League_ID).Name</MudText>
-                                    <MudText Typo="Typo.overline">@fixture.Team_1_Score - @fixture.Team_2_Score</MudText>
-                                    <MudText Typo="Typo.overline">@fixture.Location</MudText>
-                                </MudItem>
-                                <MudItem xs="3" Elevation="0" Class="mud-text-align-center">
-                                    <MudText Typo="Typo.button">@team2Name</MudText>
-                                </MudItem>
-                            </MudPaper>
-                        </MudItem>
-                    </MudPaper>
-                </MudItem>
-            </MudGrid>
+            
+            <FixtureCard Leagues="@_leagues" CurrentFixture="@fixture" TeamOneName="@team1Name" TeamTwoName="@team2Name"/>
         }
-
     }
 }
 
@@ -126,8 +101,8 @@
         _showResults = true;
         _offset = 0;
         _hidePrev = true;
-        _hideNext = false;
         await LoadFixturesAsync(SelectedCategory, SelectedLeague, SelectedTeam, _offset, Take);
+        if (_fixtureCount <= Take) _hideNext = true;
     }
 
     private async Task LoadFixturesAsync(string category, League league, Team team, int offset, int take)
@@ -168,7 +143,7 @@
         }
         await LoadFixturesAsync(SelectedCategory, SelectedLeague, SelectedTeam, _offset, Take);
         if (_offset > _fixtureCount - Take) _hideNext = true;
-        if (_offset >= 10) _hidePrev = false;
+        if (_offset >= Take) _hidePrev = false;
     }
 
     private async Task ShowPrev()
