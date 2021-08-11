@@ -3,7 +3,6 @@
 @using blazorserver.Models
 @using blazorserver.Components
 @using Microsoft.Extensions.Configuration
-@using System.Globalization
 @inject IDataAccess _data
 @inject IConfiguration _config
 
@@ -144,7 +143,7 @@
         }
         await LoadFixturesAsync(SelectedCategory, SelectedLeague, SelectedTeam, _offset, Take);
         if (_offset > _fixtureCount - Take) _hideNext = true;
-        if (_offset >= 10) _hidePrev = false;
+        if (_offset >= Take) _hidePrev = false;
     }
 
     private async Task ShowPrev()

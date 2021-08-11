@@ -115,7 +115,14 @@ else
     <hr/>
     
     // Results in detail
-    <h2>Results</h2>
+    <MudGrid Class="d-flex justify-content-between">
+        <MudPaper Elevation="0"><h3> Results</h3></MudPaper>
+        <MudPaper Elevation="0">
+            <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="ShowPrev" Disabled="@_hidePrev">Prev</MudButton>
+            <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="ShowNext" Disabled="@_hideNext">Next</MudButton>
+        </MudPaper>
+    </MudGrid>
+    
     @foreach (var fixture in Results)
     {
         var teamOne = Teams.Single(x => x.Id == fixture.Team_1_ID).Teamname;
@@ -136,10 +143,19 @@ else
     private List<Fixture> Results { get; set; }
     private List<Team> Teams { get; set; }
     
+    private int _offset;
+    private const int Take = 5;
+    private bool _hidePrev = true;
+    private bool _hideNext;
+    private int _fixtureCount;
+    
     protected override async Task OnInitializedAsync()
     {
+        _offset = 0;
+        _hidePrev = true;
+        _hideNext = false;
         var connectionString = _config.GetConnectionString("default");
-        Team = await _data.LoadDataSingle<Team, dynamic>($"SELECT * FROM Teams WHERE ID = {Id};", new {}, connectionString);
+        
         RecentForm = await _data.LoadData<Form, dynamic>($@"SELECT Team_1_ID, Team_2_ID, Team_1_Score, Team_2_Score FROM Fixtures 
 WHERE Team_1_ID = {Id} OR Team_2_ID = {Id}
 ORDER BY Date desc LIMIT 5", new {}, connectionString);
@@ -147,7 +163,45 @@ ORDER BY Date desc LIMIT 5", new {}, connectionString);
         Leagues = await _data.LoadData<League, dynamic>("SELECT * FROM Leagues", new {}, connectionString);
         Seasons = await _data.LoadData<Season, dynamic>("SELECT * FROM Seasons", new {}, connectionString);
         Teams = await _data.LoadData<Team, dynamic>("SELECT * FROM Teams", new {}, connectionString);
-        Results = await _data.LoadData<Fixture, dynamic>($"SELECT * FROM Fixtures WHERE Team_1_ID = {Id} OR Team_2_ID = {Id} ORDER BY Date desc", new {}, connectionString);
-        
+        await LoadFixturesAsync();
+        Team = Teams.Single(x => x.Id == Convert.ToInt32(Id));
+    }
+    
+    private async Task LoadFixturesAsync()
+    {
+        var sql = $"SELECT * FROM Fixtures WHERE Team_1_ID = {Id} OR Team_2_ID = {Id} ORDER BY Date desc LIMIT {_offset},{Take};";
+        var countSql = $"SELECT COUNT(*) FROM Fixtures WHERE Team_1_ID = {Id} OR Team_2_ID = {Id} order by Date desc;";
+        Results = await _data.LoadData<Fixture, dynamic>(sql, new {}, _config.GetConnectionString("default"));
+        _fixtureCount = await _data.LoadDataSingle<int, dynamic>(countSql, new {}, _config.GetConnectionString("default"));
+    }
+    
+    private async Task ShowNext()
+    {
+        _offset += Take;
+        if (_offset > _fixtureCount)
+        {
+            _offset = _fixtureCount;
+            _hideNext = true;
+            return;
+        }
+        await LoadFixturesAsync();
+        if (_offset > _fixtureCount - Take) _hideNext = true;
+        if (_offset >= Take) _hidePrev = false;
+    }
+
+    private async Task ShowPrev()
+    {
+        _offset -= Take;
+        if (_offset < 0)
+        {
+            _offset = 0;
+            _hidePrev = true;
+        }
+        await LoadFixturesAsync();
+        if (_offset < Take)
+        {
+            _hidePrev = true;
+        }
+        _hideNext = false;
     }
 }
